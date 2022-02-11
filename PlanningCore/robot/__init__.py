@@ -1,25 +1,18 @@
-def inverse_kinematics(curr_pos, target_pos) -> list[float]:
-    """Calculate the angle using Inverse Kinematics."""
-    pass
-
-
-def calc_arm_pos(ball_pos, direction) -> tuple[float, float, float]:
-    """Calculate the target position of robot arm depends on the position of the ball and force direction."""
-    pass
-
-
-def calc_arm_speed(curr_pos, target_pos, force_magnitude) -> float:
-    """Calculate the move speed of robot arm depends on the force magnitude."""
-    pass
+from PlanningCore.robot.utils import calc_arm_pos, calc_arm_speed, inverse_kinematics
 
 
 class RobotArm(object):
-    def __init__(self, pos):
+    def __init__(self, pos=(0, 0, 0)):
         self.pos = pos
         self.joints = ['joint1', 'joint2', 'joint3', 'joint4', 'gripper']
         # TODO: Add subscribers to get information from ros topic.
+        print(f'The robot arm initialized at {self.pos}')
+
+    def __repr__(self):
+        return f'RobotArm(pos={self.pos})'
 
     def hit(self, ball, force):
+        print(f'{self} will hit ball={ball} with force={force}')
         ball_pos = ball.get_pos()
         target_pos = calc_arm_pos(ball_pos, force.direction)
         speed = calc_arm_speed(self.pos, target_pos, force.magnitude)
@@ -28,21 +21,30 @@ class RobotArm(object):
 
     def move(self, joints_angles, speed):
         """Move the arm."""
+        print('Robot arm moving to angles=(...) with speed=...')
         pass
 
 
 class RobotBase(object):
-    def __init__(self, pos):
+    def __init__(self, pos: tuple[float, float] = (0, 0)) -> None:
         self.pos = pos
         # TODO: Add subscribers to get information from ros topic.
+        print(f'The robot base initialized at {self.pos}')
 
-    def move(self, target_pos):
+    def __repr__(self):
+        return f'RobotBase(pos={self.pos})'
+
+    def move(self, target_pos: tuple[float, float]) -> None:
         """Move to specify position."""
         # TODO: Execute the move through ros topic.
         self.pos = target_pos
+        print(f'{self} is moving to {target_pos}')
 
 
 class Robot(object):
     def __init__(self, arm: RobotArm, base: RobotBase):
         self.arm = arm
         self.base = base
+
+    def __repr__(self):
+        return f'Robot(arm={self.arm}, base={self.base})'
