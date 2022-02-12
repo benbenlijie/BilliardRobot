@@ -15,7 +15,7 @@ class Ball(object):
         pass
 
     def __repr__(self):
-        return f'Ball(no={self.no}, color={self.color}, pos={self.x, self.y})'
+        return f'Ball(no={self.no}, color={self.color}, pos={self.x, self.y}, cue={self.is_cue})'
 
     def move(self, target_pos):
         """
@@ -76,6 +76,7 @@ class Table(object):
         self.friction = friction
         self.balls = balls
         self.pockets = pockets
+        print(f'{self} initialized')
 
     def __repr__(self):
         return (

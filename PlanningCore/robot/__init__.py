@@ -2,22 +2,21 @@ from PlanningCore.robot.utils import calc_arm_pos, calc_arm_speed, inverse_kinem
 
 
 class RobotArm(object):
-    def __init__(self, pos=(0, 0, 0)):
+    def __init__(self, pos):
         self.pos = pos
         self.joints = ['joint1', 'joint2', 'joint3', 'joint4', 'gripper']
         # TODO: Add subscribers to get information from ros topic.
-        print(f'The robot arm initialized at {self.pos}')
 
     def __repr__(self):
         return f'RobotArm(pos={self.pos})'
 
     def hit(self, ball, force):
-        print(f'{self} will hit ball={ball} with force={force}')
-        ball_pos = ball.get_pos()
-        target_pos = calc_arm_pos(ball_pos, force.direction)
-        speed = calc_arm_speed(self.pos, target_pos, force.magnitude)
-        joints_angle = inverse_kinematics(self.pos, target_pos)
-        self.move(joints_angle, speed)
+        print(f'{self} will hit {ball} with {force}')
+        # ball_pos = ball.get_pos()
+        # target_pos = calc_arm_pos(ball_pos, force.direction)
+        # speed = calc_arm_speed(self.pos, target_pos, force.magnitude)
+        # joints_angle = inverse_kinematics(self.pos, target_pos)
+        # self.move(joints_angle, speed)
 
     def move(self, joints_angles, speed):
         """Move the arm."""
@@ -29,7 +28,6 @@ class RobotBase(object):
     def __init__(self, pos: tuple[float, float] = (0, 0)) -> None:
         self.pos = pos
         # TODO: Add subscribers to get information from ros topic.
-        print(f'The robot base initialized at {self.pos}')
 
     def __repr__(self):
         return f'RobotBase(pos={self.pos})'
@@ -45,6 +43,11 @@ class Robot(object):
     def __init__(self, arm: RobotArm, base: RobotBase):
         self.arm = arm
         self.base = base
+        print(f'{self} initialized')
 
     def __repr__(self):
         return f'Robot(arm={self.arm}, base={self.base})'
+
+    def hit(self, ball, force):
+        self.base.move((ball.x, ball.y))
+        self.arm.hit(ball, force)
