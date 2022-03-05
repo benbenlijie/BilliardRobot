@@ -22,14 +22,14 @@ class RobotArm(object):
 
 
 class RobotBase(object):
-    def __init__(self, pos: tuple[float, float] = (0, 0)) -> None:
+    def __init__(self, pos=(0, 0)) -> None:
         self.pos = pos
         # TODO: Add subscribers to get information from ros topic.
 
     def __repr__(self):
         return f'RobotBase(pos={self.pos})'
 
-    def move(self, target_pos: tuple[float, float]) -> None:
+    def move(self, target_pos) -> None:
         """Move to specify position."""
         # TODO: Execute the move through ros topic.
         self.pos = target_pos
