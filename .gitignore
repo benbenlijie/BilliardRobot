@@ -136,3 +136,6 @@ dmypy.json
 
 #PyCharm file
 .idea/
+
+*Library/
+*Logs/
