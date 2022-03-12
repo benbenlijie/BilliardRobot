@@ -15,7 +15,7 @@ from PlanningCore.core.constants import (
     u_r,
     g,
 )
-from PlanningCore.core.utils import coordinate_rotation, unit_vector, angle
+from PlanningCore.core.utils import coordinate_rotation, unit_vector, angle, get_rel_velocity
 
 
 def cue_strike(cue_velocity, phi, theta, a=0, b=0):
@@ -148,11 +148,6 @@ def ball_cushion_collision(rvw, normal):
     rvw = coordinate_rotation(rvw_R.T, psi).T
 
     return rvw
-
-
-def get_rel_velocity(rvw):
-    _, v, w = rvw
-    return v + ball_radius * np.cross(np.array([0, 0, 1]), w)
 
 
 def get_slide_time(rvw):

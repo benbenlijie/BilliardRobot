@@ -1,5 +1,7 @@
 import numpy as np
 
+from PlanningCore.core.constants import ball_radius
+
 
 def angle(v2, v1=(1, 0)):
     """Calculates counter-clockwise angle of the projections of v1 and v2 onto the x-y plane."""
@@ -30,3 +32,8 @@ def unit_vector(vector, handle_zero=False):
         if norm == 0 and handle_zero:
             norm = 1
         return vector / norm
+
+
+def get_rel_velocity(rvw):
+    _, v, w = rvw
+    return v + ball_radius * np.cross(np.array([0, 0, 1]), w)
