@@ -4,7 +4,7 @@ from math import cos, radians, sin
 import pygame
 
 from PlanningCore.billiard import Table, Ball, Pocket
-from PlanningCore.core.physical import Force
+from PlanningCore.core.physics import Force
 
 
 COLOR_MAP = {
