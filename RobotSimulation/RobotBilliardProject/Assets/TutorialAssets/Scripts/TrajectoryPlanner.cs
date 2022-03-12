@@ -98,22 +98,27 @@ public class TrajectoryPlanner : MonoBehaviour
         Debug.Log("begin to shoot cue");
         var initPos = cue.transform.position;
         var initRot = cue.transform.rotation;
-        var cueForward = cue.transform.localRotation;
+        cue.transform.position = initPos;
+        cue.transform.rotation = initRot;
+        //var cueForward = cue.transform.localRotation;
         var force = initRot * new Vector3(0, 0, shootForce);
-        Debug.Log("init status: " + initPos + initRot + cueForward);
+        var cueStick = cue.GetComponent<CueStick>();
+        cueStick.hitObject = false;
+        Debug.Log("init status: " + initPos + initRot);
         Debug.Log("force: " + force);
         float progress = 0.0f;
         float mvDistance = 0.0f;
-        while (progress < cueShootWait && mvDistance < shootMaxDistance)
+        while (progress < cueShootWait && mvDistance < shootMaxDistance && cueStick.hitObject == false)
         {
             yield return new WaitForFixedUpdate();
             cue.transform.position += force * Time.fixedDeltaTime;
-            Debug.Log("cur pos " + cue.transform.position);
+            // Debug.Log("cur pos " + cue.transform.position);
             progress += Time.fixedDeltaTime;
             mvDistance = Vector3.Distance(cue.transform.position, initPos);
         }
         cue.transform.position = initPos;
         cue.transform.rotation = initRot;
+        cueStick.hitObject = true;
     }
 
     public IEnumerator ResetCueStick(Vector3 position, Quaternion rotation)

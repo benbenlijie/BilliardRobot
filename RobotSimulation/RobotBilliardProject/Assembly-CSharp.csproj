@@ -38,7 +38,6 @@
   <ItemGroup>
      <Compile Include="Assets/TutorialAssets/Scripts/PerceptionRandomizers/SurfaceObjectPlacer.cs" />
      <Compile Include="Assets/TutorialAssets/Scripts/PerceptionRandomizers/LightRandomizer.cs" />
-     <Compile Include="Assets/Scripts/SimpleCameraController.cs" />
      <Compile Include="Assets/TutorialAssets/RosMessages/Ur3Moveit/srv/PoseEstimationServiceResponse.cs" />
      <Compile Include="Assets/TutorialAssets/RosMessages/Ur3Moveit/msg/UR3Trajectory.cs" />
      <Compile Include="Assets/TutorialAssets/Scripts/PerceptionRandomizers/YRotationRandomizerTag.cs" />

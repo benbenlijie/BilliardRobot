@@ -5,6 +5,7 @@ using UnityEngine;
 public class CueStick : MonoBehaviour
 {
     public float forceAmount = 1.0f;
+    public bool hitObject = true;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,8 +20,12 @@ public class CueStick : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        var rigid = other.GetComponent<Rigidbody>();
-        var force = transform.rotation * new Vector3(0, 0, forceAmount);
-        rigid.AddForce(force, ForceMode.Impulse);
+        if (hitObject == false)
+        {
+            var rigid = other.GetComponent<Rigidbody>();
+            var force = transform.rotation * new Vector3(0, 0, forceAmount);
+            rigid.AddForce(force, ForceMode.Impulse);
+            hitObject = true;
+        }
     }
 }
