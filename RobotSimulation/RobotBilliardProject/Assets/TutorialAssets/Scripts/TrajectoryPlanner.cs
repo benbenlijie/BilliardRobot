@@ -36,6 +36,12 @@ public class TrajectoryPlanner : MonoBehaviour
     public GameObject robot;
     public GameObject target;
     public Transform goal;
+    public GameObject cue;
+    public Vector3 cueOffset = new Vector3(1.0f, 0, 0);
+
+    public float shootForce = 5.0f;
+    public float shootMaxDistance = 0.5f;
+    public float cueShootWait = 1.0f;
 
     // Articulation Bodies
     private ArticulationBody[] jointArticulationBodies;
@@ -79,6 +85,45 @@ public class TrajectoryPlanner : MonoBehaviour
             gripperJoints[i].xDrive = curXDrive;
         }
         yield return new WaitForSeconds(jointAssignmentWait);
+    }
+
+    public void ShootTheCue()
+    {
+        StartCoroutine(ShootCueProcess());
+    }
+
+    public IEnumerator ShootCueProcess()
+    {
+        if (cue == null) yield break;
+        Debug.Log("begin to shoot cue");
+        var initPos = cue.transform.position;
+        var initRot = cue.transform.rotation;
+        var cueForward = cue.transform.localRotation;
+        var force = initRot * new Vector3(0, 0, shootForce);
+        Debug.Log("init status: " + initPos + initRot + cueForward);
+        Debug.Log("force: " + force);
+        float progress = 0.0f;
+        float mvDistance = 0.0f;
+        while (progress < cueShootWait && mvDistance < shootMaxDistance)
+        {
+            yield return new WaitForFixedUpdate();
+            cue.transform.position += force * Time.fixedDeltaTime;
+            Debug.Log("cur pos " + cue.transform.position);
+            progress += Time.fixedDeltaTime;
+            mvDistance = Vector3.Distance(cue.transform.position, initPos);
+        }
+        cue.transform.position = initPos;
+        cue.transform.rotation = initRot;
+    }
+
+    public IEnumerator ResetCueStick(Vector3 position, Quaternion rotation)
+    {
+        if (cue == null) yield break;
+        yield return new WaitForSeconds(cueShootWait);
+        var cueBody = cue.GetComponent<Rigidbody>();
+        cueBody.velocity = Vector3.zero;
+        cue.transform.localPosition = position;
+        cue.transform.localRotation = rotation;
     }
 
     /// <summary>
