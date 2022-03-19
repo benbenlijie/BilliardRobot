@@ -3745,6 +3745,15 @@ MonoBehaviour:
   shootMaxDistance: 0.3
   cueShootWait: 1
   scenario: {fileID: 0}
+  mainCamera: {fileID: 0}
+  cueBall: {fileID: 0}
+  ball1: {fileID: 0}
+  ball2: {fileID: 0}
+  ball3: {fileID: 0}
+  ball4: {fileID: 0}
+  ball5: {fileID: 0}
+  topCamera: {fileID: 0}
+  rosSenseServiceName: pose_estimation_srv
 --- !u!4 &443603554
 Transform:
   m_ObjectHideFlags: 0
