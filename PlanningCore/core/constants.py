@@ -46,4 +46,5 @@ class State(object):
     spinning = 1
     sliding = 2
     rolling = 3
-    all = [stationary, spinning, sliding, rolling]
+    pocket = 4
+    all = [stationary, spinning, sliding, rolling, pocket]

@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 from PlanningCore.core.constants import ball_radius
 
@@ -37,3 +38,9 @@ def unit_vector(vector, handle_zero=True):
 def get_rel_velocity(rvw):
     _, v, w = rvw
     return v + ball_radius * np.cross(np.array([0, 0, 1]), w)
+
+def is_pocket(ballpos, pocket):
+    if math.sqrt((ballpos[0] - pocket.pos[0]) ** 2 + (ballpos[1] - pocket.pos[1]) ** 2) < ball_radius + pocket.radius:
+        return True
+    else:
+        return False
