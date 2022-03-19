@@ -1,3 +1,5 @@
+import numpy as np
+
 from PlanningCore.core.constants import State
 
 
@@ -5,23 +7,38 @@ class Ball(object):
     def __init__(self, no, color, pos=(0, 0), radius=10, is_cue=False):
         self.no = no
         self.color = color
-        self.x, self.y = pos
+        self.pos = pos
         self.radius = radius
         self.is_cue = is_cue
-        self.velocity = 0
-        self.angular_velocity = 0
+        self.velocity = (0, 0, 0)
+        self.angular_velocity = (0, 0, 0)
         self.force_angle = 0
-        self._state = State.stationary
+        self.state = State.stationary
 
     def __repr__(self):
-        return f'Ball(no={self.no}, color={self.color}, pos={self.x, self.y}, cue={self.is_cue})'
-
-    @property
-    def state(self):
-        return self._state
+        return f'Ball(no={self.no}, color={self.color}, pos={self.pos}, cue={self.is_cue})'
 
     def set_state(self, state):
-        self._state = state
+        self.state = state
+
+    def set_pos(self, pos):
+        self.pos = pos[:2]
+
+    def set_velocity(self, velocity):
+        self.velocity = velocity
+
+    def set_angular_velocity(self, angular_velocity):
+        self.angular_velocity = angular_velocity
+
+    def set_rvw(self, rvw):
+        r, v, w = rvw
+        self.set_pos(r)
+        self.set_velocity(v)
+        self.set_angular_velocity(w)
+
+    @property
+    def rvw(self):
+        return np.array([[*self.pos, 0], self.velocity, self.angular_velocity])
 
     def apply_force(self, force):
         """
@@ -36,16 +53,15 @@ class Ball(object):
         这里的x和y不是球心，是这个圆的外界正方形的左下角
         :return:
         """
-        self.x, self.y = target_pos
-        print(f'{self} moving to {self.x, self.y}')
+        self.pos = target_pos
+        print(f'{self} moving to {self.pos}')
 
 
 class Pocket(object):
-    def __init__(self, no, x, y, radius=15):
+    def __init__(self, no, pos, radius=15):
         self.no = no
         self.radius = radius
-        self.x = x
-        self.y = y
+        self.pos = pos
         self.balls = []
 
     def __repr__(self):
@@ -53,17 +69,39 @@ class Pocket(object):
 
 
 class Table(object):
-    def __init__(self, width, height, margin, friction, balls, pockets):
+    def __init__(self, width, height, balls, pockets):
         self.width = width
         self.height = height
-        self.margin = margin
-        self.friction = friction
         self.balls = balls
         self.pockets = pockets
+        self.left = 0
+        self.right = self.width
+        self.bottom = 0
+        self.top = self.height
+        self.normal = {
+            'L': np.array((1, 0)),
+            'R': np.array((1, 0)),
+            'B': np.array((0, 1)),
+            'T': np.array((0, 1)),
+        }
+
+        self.time = 0
+        self.n = 0
+        self.log = []
+        self.snapshot(0)
         print(f'{self} initialized')
 
     def __repr__(self):
         return (
-            f'Table(width={self.width}, height={self.height}, friction={self.friction}, '
+            f'Table(width={self.width}, height={self.height}'
             f'balls={self.balls}, pockets={self.pockets})'
         )
+
+    def snapshot(self, dt):
+        self.n += 1
+        self.time += dt
+        self.log.append({
+            'time': self.time,
+            'index': self.n,
+            'balls': [{'state': ball.state, 'rvw': ball.rvw, 'color': ball.color} for ball in self.balls],
+        })

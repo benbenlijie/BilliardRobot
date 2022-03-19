@@ -21,7 +21,7 @@ def coordinate_rotation(v, phi):
     return np.dot(rotation, v)
 
 
-def unit_vector(vector, handle_zero=False):
+def unit_vector(vector, handle_zero=True):
     if len(vector.shape) > 1:
         norm = np.linalg.norm(vector, axis=1, keepdims=True)
         if handle_zero:

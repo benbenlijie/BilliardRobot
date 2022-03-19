@@ -92,7 +92,7 @@ def ball_cushion_collision(rvw, normal):
     """Inhwan Han (2005) `Dynamics in Carom and Three Cushion Billiards`"""
 
     # Orient the normal, so it points away from playing surface.
-    normal = normal if np.dot(normal, rvw[1]) > 0 else -normal
+    normal = normal if np.dot(normal, rvw[1][:2]) > 0 else -normal
 
     # Change from the table frame to the cushion frame. The cushion frame is defined by
     # the normal vector is parallel with <1,0,0>.
