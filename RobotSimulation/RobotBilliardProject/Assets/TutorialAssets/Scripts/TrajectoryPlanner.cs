@@ -66,6 +66,8 @@ public class TrajectoryPlanner : MonoBehaviour
 
     public PoseEstimationScenario scenario;
 
+    public Camera mainCamera;
+
     private enum Poses
     {
         PreGrasp,
@@ -147,35 +149,35 @@ public class TrajectoryPlanner : MonoBehaviour
     /// <summary>
     ///     Button callback for the Cube Randomization
     /// </summary>
-    public void RandomizeCube()
-    {
-        scenario.Move();
-        ActualPos.text = target.transform.position.ToString();
-        ActualRot.text = target.transform.eulerAngles.ToString();
-    }
+    // public void RandomizeCube()
+    // {
+    //     scenario.Move();
+    //     ActualPos.text = target.transform.position.ToString();
+    //     ActualRot.text = target.transform.eulerAngles.ToString();
+    // }
 
     /// <summary>
     ///     Button callback for the Pose Estimation
     /// </summary>
-    public void PoseEstimation()
-    {
-        Debug.Log("Capturing screenshot...");
+    // public void PoseEstimation()
+    // {
+    //     Debug.Log("Capturing screenshot...");
 
-        InitializeButton.interactable = false;
-        RandomizeButton.interactable = false;
-        ServiceButton.interactable = false;
-        ActualPos.text = target.transform.position.ToString();
-        ActualRot.text = target.transform.eulerAngles.ToString();
-        EstimatedPos.text = "-";
-        EstimatedRot.text = "-";
+    //     InitializeButton.interactable = false;
+    //     RandomizeButton.interactable = false;
+    //     ServiceButton.interactable = false;
+    //     ActualPos.text = target.transform.position.ToString();
+    //     ActualRot.text = target.transform.eulerAngles.ToString();
+    //     EstimatedPos.text = "-";
+    //     EstimatedRot.text = "-";
 
-        // Capture the screenshot and pass it to the pose estimation service
-        // MYNOTE: This is where the process begins.
-        // 1. grab the screenshot
-        // 2. pass it to the pose estimation
-        byte[] rawImageData = CaptureScreenshot();
-        InvokePoseEstimationService(rawImageData);
-    }
+    //     // Capture the screenshot and pass it to the pose estimation service
+    //     // MYNOTE: This is where the process begins.
+    //     // 1. grab the screenshot
+    //     // 2. pass it to the pose estimation
+    //     byte[] rawImageData = CaptureScreenshot();
+    //     InvokePoseEstimationService(rawImageData);
+    // }
 
     private IEnumerator MoveToInitialPosition()
     {
@@ -223,57 +225,57 @@ public class TrajectoryPlanner : MonoBehaviour
     ///     PoseEstimationServiceResponse.
     /// </summary>
     /// <param name="imageData"></param>
-    private void InvokePoseEstimationService(byte[] imageData)
-    {
-        uint imageHeight = (uint)renderTexture.height;
-        uint imageWidth = (uint)renderTexture.width;
+    // private void InvokePoseEstimationService(byte[] imageData)
+    // {
+    //     uint imageHeight = (uint)renderTexture.height;
+    //     uint imageWidth = (uint)renderTexture.width;
 
-        // MYNOTE: Convert the bytes to ROS Image data format.
-        RosMessageTypes.Sensor.Image rosImage = new RosMessageTypes.Sensor.Image(new RosMessageTypes.Std.Header(), imageWidth, imageHeight, "RGBA", isBigEndian, step, imageData);
-        PoseEstimationServiceRequest poseServiceRequest = new PoseEstimationServiceRequest(rosImage);
-        ros.SendServiceMessage<PoseEstimationServiceResponse>("pose_estimation_srv", poseServiceRequest, PoseEstimationCallback);
-    }
+    //     // MYNOTE: Convert the bytes to ROS Image data format.
+    //     RosMessageTypes.Sensor.Image rosImage = new RosMessageTypes.Sensor.Image(new RosMessageTypes.Std.Header(), imageWidth, imageHeight, "RGBA", isBigEndian, step, imageData);
+    //     PoseEstimationServiceRequest poseServiceRequest = new PoseEstimationServiceRequest(rosImage);
+    //     ros.SendServiceMessage<PoseEstimationServiceResponse>("pose_estimation_srv", poseServiceRequest, PoseEstimationCallback);
+    // }
 
-    void PoseEstimationCallback(PoseEstimationServiceResponse response)
-    {
-        if (response != null)
-        {
-            // The position output by the model is the position of the cube relative to the camera so we need to extract its global position 
-            var estimatedPosition = Camera.main.transform.TransformPoint(response.estimated_pose.position.From<RUF>());
-            var estimatedRotation = Camera.main.transform.rotation * response.estimated_pose.orientation.From<RUF>();
+    // void PoseEstimationCallback(PoseEstimationServiceResponse response)
+    // {
+    //     if (response != null)
+    //     {
+    //         // The position output by the model is the position of the cube relative to the camera so we need to extract its global position 
+    //         var estimatedPosition = Camera.main.transform.TransformPoint(response.estimated_pose.position.From<RUF>());
+    //         var estimatedRotation = Camera.main.transform.rotation * response.estimated_pose.orientation.From<RUF>();
 
-            PublishJoints(estimatedPosition, estimatedRotation);
+    //         PublishJoints(estimatedPosition, estimatedRotation);
 
-            EstimatedPos.text = estimatedPosition.ToString();
-            EstimatedRot.text = estimatedRotation.eulerAngles.ToString();
-        }
-        else
-        {
-            InitializeButton.interactable = true;
-            RandomizeButton.interactable = true;
-        }
-    }
+    //         EstimatedPos.text = estimatedPosition.ToString();
+    //         EstimatedRot.text = estimatedRotation.eulerAngles.ToString();
+    //     }
+    //     else
+    //     {
+    //         InitializeButton.interactable = true;
+    //         RandomizeButton.interactable = true;
+    //     }
+    // }
 
     /// <summary>
     ///     Capture the main camera's render texture and convert to bytes.
     /// </summary>
     /// <returns>imageBytes</returns>
     // MYNOTE: This capturescreenshot function is useful for our project.
-    private byte[] CaptureScreenshot()
-    {
-        Camera.main.targetTexture = renderTexture;
-        RenderTexture currentRT = RenderTexture.active;
-        RenderTexture.active = renderTexture;
-        Camera.main.Render();
-        Texture2D mainCameraTexture = new Texture2D(renderTexture.width, renderTexture.height);
-        mainCameraTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
-        mainCameraTexture.Apply();
-        RenderTexture.active = currentRT;
-        // Get the raw byte info from the screenshot
-        byte[] imageBytes = mainCameraTexture.GetRawTextureData();
-        Camera.main.targetTexture = null;
-        return imageBytes;
-    }
+    // private byte[] CaptureScreenshot()
+    // {
+    //     Camera.main.targetTexture = renderTexture;
+    //     RenderTexture currentRT = RenderTexture.active;
+    //     RenderTexture.active = renderTexture;
+    //     Camera.main.Render();
+    //     Texture2D mainCameraTexture = new Texture2D(renderTexture.width, renderTexture.height);
+    //     mainCameraTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+    //     mainCameraTexture.Apply();
+    //     RenderTexture.active = currentRT;
+    //     // Get the raw byte info from the screenshot
+    //     byte[] imageBytes = mainCameraTexture.GetRawTextureData();
+    //     Camera.main.targetTexture = null;
+    //     return imageBytes;
+    // }
 
     /// <summary>
     ///     Get the current values of the robot's joint angles.
@@ -530,29 +532,157 @@ public class TrajectoryPlanner : MonoBehaviour
         }
     }
 
+
+    // =============================================
+    public GameObject cueBall;
+    public GameObject ball1;
+    public GameObject ball2;
+    public GameObject ball3;
+    public GameObject ball4;
+    public GameObject ball5;
+    // public GameObject ball6;
+    // public GameObject ball7;
+    // public GameObject ball8;
+    public Camera topCamera;
+
+    public string rosSenseServiceName = "pose_estimation_srv";
+
+    public void PoseEstimation()
+    {
+        Debug.Log("Capturing screenshot...");
+
+        // InitializeButton.interactable = false;
+        // RandomizeButton.interactable = false;
+        // ServiceButton.interactable = false;
+        // ActualPos.text = target.transform.position.ToString();
+        // ActualRot.text = target.transform.eulerAngles.ToString();
+        // EstimatedPos.text = "-";
+        // EstimatedRot.text = "-";
+
+        // Capture the screenshot and pass it to the pose estimation service
+        byte[] rawImageData = CaptureScreenshot();
+        InvokePoseEstimationService(rawImageData);
+    }
+
+    private byte[] CaptureScreenshot()
+    {
+        topCamera.targetTexture = renderTexture;
+        RenderTexture currentRT = RenderTexture.active;
+        RenderTexture.active = renderTexture;
+        topCamera.Render();
+        Texture2D mainCameraTexture = new Texture2D(renderTexture.width, renderTexture.height);
+        mainCameraTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+        mainCameraTexture.Apply();
+        RenderTexture.active = currentRT;
+        // Get the raw byte info from the screenshot
+        byte[] imageBytes = mainCameraTexture.GetRawTextureData();
+        topCamera.targetTexture = null;
+        return imageBytes;  
+    }
+
+    private void InvokePoseEstimationService(byte[] imageData)
+    {
+        uint imageHeight = (uint)renderTexture.height;
+        uint imageWidth = (uint)renderTexture.width;
+
+        RosMessageTypes.Sensor.Image rosImage = new RosMessageTypes.Sensor.Image(new RosMessageTypes.Std.Header(), imageWidth, imageHeight, "RGBA", isBigEndian, step, imageData);
+        PoseEstimationServiceRequest poseServiceRequest = new PoseEstimationServiceRequest();
+        poseServiceRequest.image = rosImage;
+
+        poseServiceRequest.cue_ball_pose = new RosMessageTypes.Geometry.Pose
+        {   // 这个可能整个都要调整的
+            position = cueBall.transform.position.To<FLU>(),
+            // TODO: 这个 orientation要调整
+            orientation = Quaternion.Euler(90, cueBall.transform.eulerAngles.y, 0).To<FLU>()
+        };
+
+        
+        RosMessageTypes.Geometry.Pose ball1_pose = new RosMessageTypes.Geometry.Pose
+        {
+            position = ball1.transform.position.To<FLU>(),
+            // TODO: 这个 orientation要调整
+            orientation = Quaternion.Euler(90, ball1.transform.eulerAngles.y, 0).To<FLU>()
+        };
+
+        RosMessageTypes.Geometry.Pose ball2_pose = new RosMessageTypes.Geometry.Pose
+        {
+            position = ball2.transform.position.To<FLU>(),
+            // TODO: 这个 orientation要调整
+            orientation = Quaternion.Euler(90, ball2.transform.eulerAngles.y, 0).To<FLU>()
+        };
+
+        RosMessageTypes.Geometry.Pose ball3_pose = new RosMessageTypes.Geometry.Pose
+        {
+            position = ball3.transform.position.To<FLU>(),
+            // TODO: 这个 orientation要调整
+            orientation = Quaternion.Euler(90, ball3.transform.eulerAngles.y, 0).To<FLU>()
+        };
+
+        RosMessageTypes.Geometry.Pose ball4_pose = new RosMessageTypes.Geometry.Pose
+        {
+            position = ball4.transform.position.To<FLU>(),
+            // TODO: 这个 orientation要调整
+            orientation = Quaternion.Euler(90, ball4.transform.eulerAngles.y, 0).To<FLU>()
+        };
+
+        RosMessageTypes.Geometry.Pose ball5_pose = new RosMessageTypes.Geometry.Pose
+        {
+            position = ball5.transform.position.To<FLU>(),
+            // TODO: 这个 orientation要调整
+            orientation = Quaternion.Euler(90, ball5.transform.eulerAngles.y, 0).To<FLU>()
+        };
+
+        RosMessageTypes.Geometry.Pose[] balls_pose_list = {ball1_pose, ball2_pose, ball3_pose, ball4_pose, ball5_pose};
+
+        poseServiceRequest.balls_pose = balls_pose_list;
+
+        ros.SendServiceMessage<PoseEstimationServiceResponse>(rosSenseServiceName, poseServiceRequest, PoseEstimationCallback);
+    }
+
+    void PoseEstimationCallback(PoseEstimationServiceResponse response)  
+    {
+        if (response != null)
+        {
+            // The position output by the model is the position of the cube relative to the camera so we need to extract its global position 
+            var estimatedPosition = Camera.main.transform.TransformPoint(response.estimated_pose.position.From<RUF>());
+            var estimatedRotation = Camera.main.transform.rotation * response.estimated_pose.orientation.From<RUF>();
+
+            // PublishJoints(estimatedPosition, estimatedRotation);
+
+            // EstimatedPos.text = estimatedPosition.ToString();
+            // EstimatedRot.text = estimatedRotation.eulerAngles.ToString();
+        }
+        // else
+        // {
+        //     InitializeButton.interactable = true;
+        //     RandomizeButton.interactable = true;
+        // }
+    }
+
+    // =====================================
     void Start()
     {
         // Get ROS connection static instance
         ros = ROSConnection.instance;
 
         // Assign UI elements
-        InitializeButton = GameObject.Find("ROSObjects/Canvas/ButtonPanel/DefaultButton").GetComponent<Button>();
-        RandomizeButton = GameObject.Find("ROSObjects/Canvas/ButtonPanel/RandomButton").GetComponent<Button>();
-        ServiceButton = GameObject.Find("ROSObjects/Canvas/ButtonPanel/ServiceButton").GetComponent<Button>();
+        // InitializeButton = GameObject.Find("ROSObjects/Canvas/ButtonPanel/DefaultButton").GetComponent<Button>();
+        // RandomizeButton = GameObject.Find("ROSObjects/Canvas/ButtonPanel/RandomButton").GetComponent<Button>();
+        // ServiceButton = GameObject.Find("ROSObjects/Canvas/ButtonPanel/ServiceButton").GetComponent<Button>();
 
-        ActualPos = GameObject.Find("ROSObjects/Canvas/PositionPanel/ActualPosField").GetComponent<Text>();
-        ActualRot = GameObject.Find("ROSObjects/Canvas/PositionPanel/ActualRotField").GetComponent<Text>();
-        EstimatedPos = GameObject.Find("ROSObjects/Canvas/PositionPanel/EstPosField").GetComponent<Text>();
-        EstimatedRot = GameObject.Find("ROSObjects/Canvas/PositionPanel/EstRotField").GetComponent<Text>();
+        // ActualPos = GameObject.Find("ROSObjects/Canvas/PositionPanel/ActualPosField").GetComponent<Text>();
+        // ActualRot = GameObject.Find("ROSObjects/Canvas/PositionPanel/ActualRotField").GetComponent<Text>();
+        // EstimatedPos = GameObject.Find("ROSObjects/Canvas/PositionPanel/EstPosField").GetComponent<Text>();
+        // EstimatedRot = GameObject.Find("ROSObjects/Canvas/PositionPanel/EstRotField").GetComponent<Text>();
 
-        // Initialize UI element values
-        ActualPos.text = target.transform.position.ToString();
-        ActualRot.text = target.transform.eulerAngles.ToString();
-        EstimatedPos.text = "-";
-        EstimatedRot.text = "-";
+        // // Initialize UI element values
+        // ActualPos.text = target.transform.position.ToString();
+        // ActualRot.text = target.transform.eulerAngles.ToString();
+        // EstimatedPos.text = "-";
+        // EstimatedRot.text = "-";
 
         // Render texture 
-        renderTexture = new RenderTexture(Camera.main.pixelWidth, Camera.main.pixelHeight, 24, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+        renderTexture = new RenderTexture(mainCamera.pixelWidth, mainCamera.pixelHeight, 24, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
         renderTexture.Create();
     }
 }

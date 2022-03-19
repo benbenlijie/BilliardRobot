@@ -13,12 +13,15 @@ from geometry_msgs.msg import Point, Quaternion, Pose
 from scipy.spatial.transform import Rotation as R
 
 NODE_NAME = "PoseEstimationNode"
-PACKAGE_LOCATION = os.path.dirname(os.path.realpath(__file__))[:-(len("/scripts"))] # remove "/scripts"
+PACKAGE_LOCATION = os.path.dirname(os.path.realpath(__file__))[
+    :-(len("/scripts"))]  # remove "/scripts"
 MODEL_PATH = PACKAGE_LOCATION + "/models/UR3_single_cube_model.tar"
 
 count = 0
 
 # MYNOTE: This is where the Pose Estimate operations is
+
+
 def _save_image(req):
     """  convert raw image data to a png and save it
     Args:
@@ -31,7 +34,8 @@ def _save_image(req):
 
     image_height = req.image.width
     image_width = req.image.height
-    image = Image.frombytes('RGBA', (image_width,image_height), req.image.data)
+    image = Image.frombytes(
+        'RGBA', (image_width, image_height), req.image.data)
     image = ImageOps.flip(image)
     image_name = "Input" + str(count) + ".png"
     if not os.path.exists(PACKAGE_LOCATION + "/images/"):
@@ -41,7 +45,7 @@ def _save_image(req):
     return image_path
 
 
-def _run_model(image_path):
+def _run_model(image_path, req):
     """ run the model and return the estimated posiiton/quaternion
     Args:
         image_path (str): location of saved png file
@@ -49,9 +53,18 @@ def _run_model(image_path):
         position (float[]): object estmated x,y,z
         quaternion (float[]): object estimated w,x,y,z
     """
-    output = run_model_main(image_path, MODEL_PATH)
-    position = output[1].flatten()
-    quaternion = output[0].flatten()
+    # output = run_model_main(image_path, MODEL_PATH)
+    # position = output[1].flatten()
+    # quaternion = output[0].flatten()
+    print('=====> todo: running model, to get estimated pose')
+    print("cue ball pose")
+    print(req.cue_ball_pose)
+    print("other balls")
+    print(req.balls_pose)
+
+    position = [0.1, 0.1, 0.1]
+    quaternion = [0.3, 0.3, 0.3, 0.3]
+
     return position, quaternion
 
 
@@ -73,7 +86,7 @@ def _format_response(est_position, est_rotation):
     rotation.y = est_rotation[1]
     rotation.z = est_rotation[2]
     rotation.w = est_rotation[3]
-    
+
     pose = Pose()
     pose.position = position
     pose.orientation = rotation
@@ -93,7 +106,7 @@ def pose_estimation_main(req):
     print("Started estimation pipeline")
     image_path = _save_image(req)
     print("Predicting from screenshot " + image_path)
-    est_position, est_rotation = _run_model(image_path)
+    est_position, est_rotation = _run_model(image_path, req)
     response = _format_response(est_position, est_rotation)
     print("Finished estimation pipeline\n")
     return response
@@ -104,7 +117,8 @@ def main():
      The function to run the pose estimation service
      """
     rospy.init_node(NODE_NAME)
-    s = rospy.Service('pose_estimation_service', PoseEstimationService, pose_estimation_main)
+    s = rospy.Service('pose_estimation_service',
+                      PoseEstimationService, pose_estimation_main)
     print("Ready to estimate pose!")
     rospy.spin()
 

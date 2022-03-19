@@ -1,3 +1,5 @@
 sensor_msgs/Image image
+geometry_msgs/Pose cue_ball_pose
+geometry_msgs/Pose[] balls_pose
 ---
 geometry_msgs/Pose estimated_pose
