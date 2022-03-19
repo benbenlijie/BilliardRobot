@@ -27,12 +27,12 @@ if sys.version_info >= (3, 0):
 else:
     def planCompat(plan):
         return plan
-        
-        
+
+
 """
     Given the start angles of the robot, plan a trajectory that ends at the destination pose.
 """
-def plan_trajectory(move_group, destination_pose, start_joint_angles): 
+def plan_trajectory(move_group, destination_pose, start_joint_angles):
     current_joint_state = JointState()
     current_joint_state.name = joint_names
     current_joint_state.position = start_joint_angles
@@ -48,7 +48,7 @@ def plan_trajectory(move_group, destination_pose, start_joint_angles):
 
 """
     Creates a pick and place plan using the four states below.
-    
+
     1. Pre Grasp - position gripper directly above target object
     2. Grasp - lower gripper so that fingers are on either side of object
     3. Pick Up - raise gripper back to the pre grasp position
@@ -78,47 +78,19 @@ def plan_pick_and_place(req):
     previous_ending_joint_angles = pre_grasp_pose.joint_trajectory.points[-1].positions
     response.trajectories.append(pre_grasp_pose)
 
-    # Grasp - lower gripper so that fingers are on either side of object
-    pick_pose = copy.deepcopy(req.pick_pose)
-    pick_pose.position.z -= 0.075  # Static value coming from Unity, TODO: pass along with request
-    grasp_pose = plan_trajectory(move_group, pick_pose, previous_ending_joint_angles)
-
-    previous_ending_joint_angles = grasp_pose.joint_trajectory.points[-1].positions
-    response.trajectories.append(grasp_pose)
-
-    # Pick Up - raise gripper back to the pre grasp position
-    pick_up_pose = plan_trajectory(move_group, req.pick_pose, previous_ending_joint_angles)
-
-    previous_ending_joint_angles = pick_up_pose.joint_trajectory.points[-1].positions
-    response.trajectories.append(pick_up_pose)
-
-    # Place - move gripper to desired placement position
-    place_pose = plan_trajectory(move_group, req.place_pose, previous_ending_joint_angles)
-
-    previous_ending_joint_angles = place_pose.joint_trajectory.points[-1].positions
-    response.trajectories.append(place_pose)
-
-    # Post place - lift gripper after placement position
-    place_pose = copy.deepcopy(req.place_pose)
-    place_pose.position.z += 0.075 # Static value offset to lift up gripper
-    post_place_pose = plan_trajectory(move_group, place_pose, previous_ending_joint_angles)
-
-    previous_ending_joint_angles = post_place_pose.joint_trajectory.points[-1].positions
-    response.trajectories.append(post_place_pose)
-
     move_group.clear_pose_targets()
     return response
 
 def setup_scene():
     global move_group
-    
+
     group_name = "arm"
     move_group = moveit_commander.MoveGroupCommander(group_name)
 
     # Add table collider to MoveIt scene
     scene = moveit_commander.PlanningSceneInterface()
     robot = moveit_commander.RobotCommander()
-    rospy.sleep(2)
+    rospy.sleep(1)
 
     p = PoseStamped()
     p.header.frame_id = move_group.get_planning_frame()

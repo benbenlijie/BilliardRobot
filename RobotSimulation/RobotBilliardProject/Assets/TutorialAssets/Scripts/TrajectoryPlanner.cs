@@ -37,7 +37,12 @@ public class TrajectoryPlanner : MonoBehaviour
     public GameObject target;
     public Transform goal;
     public GameObject cue;
-    public Vector3 cueOffset = new Vector3(1.0f, 0, 0);
+    public float yAngle = 0.0f;
+    public float cueLength = 1 - 0.228f;
+
+    public Transform targetPoint;
+
+    public Transform lookatPoint;
 
     public float shootForce = 5.0f;
     public float shootMaxDistance = 0.5f;
@@ -286,6 +291,105 @@ public class TrajectoryPlanner : MonoBehaviour
         joints.joint_05 = jointArticulationBodies[5].xDrive.target;
 
         return joints;
+    }
+
+    public void PublishBilliardJoints()
+    {
+        // if (target == null)
+        // {
+            // return;
+        // }
+        // Vector3 targetPos = target.position - robot.position;
+
+        MoverServiceRequest request = new MoverServiceRequest();
+        request.joints_input = CurrentJointConfig();
+        var orientation = Quaternion.Euler(0, yAngle, 0);
+
+        if (targetPoint == null || lookatPoint == null)
+        {
+            Debug.LogError("Null targetPoint or null lookatPoint");
+            return;
+            
+        }
+        
+        
+        Vector3 relativePos = lookatPoint.position - targetPoint.position;
+        orientation = Quaternion.LookRotation(relativePos, Vector3.up);
+        Debug.Log("orientation: " + orientation.eulerAngles);
+        orientation = Quaternion.Euler(0, orientation.eulerAngles.y - yAngle, 0);
+        Transform root = targetPoint.parent;
+        Vector3 cueOffset = root.InverseTransformVector(relativePos.normalized * -cueLength);
+        
+        Vector3 targetPose = targetPoint.localPosition + cueOffset;
+        
+
+        request.pick_pose = new RosMessageTypes.Geometry.Pose{
+            position = targetPose.To<FLU>(),
+            orientation = orientation.To<FLU>()
+        };
+
+
+        request.place_pose = new RosMessageTypes.Geometry.Pose{
+            position = new Vector3(-0.3f, 1.0f, -0.2f).To<FLU>(),
+            orientation = pickOrientation.To<FLU>()
+        };
+
+        Debug.Log("request info: " + targetPose + " orientation: " + orientation.eulerAngles);
+        Debug.Log("relative : " + relativePos.normalized * cueLength);
+        Debug.Log("calculate pose: " + (targetPose + relativePos.normalized * cueLength));
+
+        ros.SendServiceMessage<MoverServiceResponse>(rosServiceName, request, BilliardTrajectoryResponse);
+    }
+
+    void BilliardTrajectoryResponse(MoverServiceResponse response)
+    {
+        if (response.trajectories != null && response.trajectories.Length > 0)
+        {
+            Debug.Log("Trajectory returned.");
+            StartCoroutine(BilliardExecuteTrajectories(response));
+        }
+        else
+        {
+            Debug.LogError("No trajectory returned from MoverService.");
+            InitializeButton.interactable = true;
+            RandomizeButton.interactable = true;
+            ServiceButton.interactable = true;
+        }
+    }
+
+    private IEnumerator BilliardExecuteTrajectories(MoverServiceResponse response)
+    {
+        if (response.trajectories != null)
+        {
+            if (cue != null)
+            {
+                cue.GetComponent<MeshCollider>().enabled=false;
+            }
+            // only get the first trajectory
+            int poseIndex = 0;
+            for (int jointConfigIndex = 0; jointConfigIndex < response.trajectories[poseIndex].joint_trajectory.points.Length; jointConfigIndex++)
+            {
+                var jointPositions = response.trajectories[poseIndex].joint_trajectory.points[jointConfigIndex].positions;
+                float[] result = jointPositions.Select(r => (float)r * Mathf.Rad2Deg).ToArray();
+
+                // Set the joint values for every joint
+                for (int joint = 0; joint < jointArticulationBodies.Length; joint++)
+                {
+                    var joint1XDrive = jointArticulationBodies[joint].xDrive;
+                    joint1XDrive.target = result[joint];
+                    jointArticulationBodies[joint].xDrive = joint1XDrive;
+                }
+                // Wait for robot to achieve pose for all joint assignments
+                yield return new WaitForSeconds(jointAssignmentWait);
+            }
+            // Wait for the robot to achieve the final pose from joint assignment
+            yield return new WaitForSeconds(poseAssignmentWait);
+            if (cue != null)
+            {
+                cue.GetComponent<MeshCollider>().enabled=true;
+            }
+            ShootTheCue();
+        }
     }
 
     public void PublishJoints(Vector3 targetPos, Quaternion targetRot)
