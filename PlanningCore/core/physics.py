@@ -164,18 +164,15 @@ def get_spin_time(rvw):
     return np.abs(w[2]) * 2/5*ball_radius/u_sp/g
 
 
-def evolve_ball_motion(state, rvw, t):
-    if state == State.stationary or state == State.pocket:
+def evolve_ball_motion(pockets, state, rvw, t):
+    if state == State.stationary or state == State.pocketed:
         return rvw, state
 
-    #判断
-    for onepocket in pockets:
-        if is_pocket(rvw[0][:2], onepocket):
+    for pocket in pockets:
+        if is_pocket(rvw[0][:2], pocket):
             rvw[1] = 0
             rvw[2] = 0
-            return rvw, State.pocket
-
-
+            return rvw, State.pocketed
 
     if state == State.sliding:
         t_slide = get_slide_time(rvw)

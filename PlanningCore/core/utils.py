@@ -1,5 +1,6 @@
+from math import acos, atan, degrees, sqrt
+
 import numpy as np
-import math
 
 from PlanningCore.core.constants import ball_radius
 
@@ -39,8 +40,23 @@ def get_rel_velocity(rvw):
     _, v, w = rvw
     return v + ball_radius * np.cross(np.array([0, 0, 1]), w)
 
-def is_pocket(ballpos, pocket):
-    if math.sqrt((ballpos[0] - pocket.pos[0]) ** 2 + (ballpos[1] - pocket.pos[1]) ** 2) < ball_radius + pocket.radius:
-        return True
+
+def is_pocket(ball_pos, pocket):
+    return sqrt(
+        (ball_pos[0] - pocket.pos[0]) ** 2
+        + (ball_pos[1] - pocket.pos[1]) ** 2
+    ) < ball_radius + pocket.radius
+
+
+def get_common_tangent_angles(cue_ball, target_ball):
+    r1 = np.asarray(cue_ball.pos)
+    r2 = np.asarray(target_ball.pos)
+    len_r1_r2 = sqrt(((r1 - r2) ** 2).sum())
+    alpha = acos(2 * cue_ball.radius / len_r1_r2)
+    if r2[1] - r1[1] == 0:
+        beta = 0
     else:
-        return False
+        beta = atan((r2[0] - r1[0]) / (r2[1] - r1[1]))
+    angle1 = degrees(alpha - beta)
+    angle2 = degrees(np.pi - alpha - beta)
+    return sorted([angle1, angle2])

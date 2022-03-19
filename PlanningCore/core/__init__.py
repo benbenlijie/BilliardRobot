@@ -3,17 +3,18 @@ import sys
 import numpy as np
 import pygame
 
-from PlanningCore.billiard import Ball, Table
+from PlanningCore.billiard import Ball, Table, Pocket
 from PlanningCore.core.constants import State
 from PlanningCore.core import constants as c
 from PlanningCore.core.physics import ball_ball_collision, ball_cushion_collision, evolve_ball_motion, Force, cue_strike
 from PlanningCore.core.plan import search_optimal_strike
-from PlanningCore.core.utils import get_rel_velocity
+from PlanningCore.core.utils import get_rel_velocity, get_common_tangent_angles
 
 
-def evolve(balls, dt):
+def evolve(pockets, balls, dt):
     for ball in balls:
         rvw, state = evolve_ball_motion(
+            pockets=pockets,
             state=ball.state,
             rvw=ball.rvw,
             t=dt,
@@ -95,7 +96,7 @@ def simulate(table, dt=0.033):
     for t in np.diff(np.arange(0, 5, dt)):
         if np.all([ball.state == State.stationary for ball in table.balls]):
             break
-        evolve(table.balls, t)
+        evolve(table.pockets, table.balls, t)
         table.snapshot(t)
 
         collisions = detect_collisions(table)
@@ -108,9 +109,9 @@ def get_demo_table():
     cue_ball = Ball(no=0, color='white', pos=(c.table_width / 2, 0.33), radius=c.ball_radius, is_cue=True)
     ball7 = Ball(no=7, color='blue', pos=(c.table_width/2 - c.table_width/5, 0.91), radius=c.ball_radius)
     ball3 = Ball(no=3, color='yellow', pos=(c.table_width/2 + c.table_width/6 + 0.2, 1.2), radius=c.ball_radius)
-    ball9 = Ball(no=9, color='black', pos=(c.table_width / 2, 0.66), radius=c.ball_radius)
+    ball9 = Ball(no=9, color='black', pos=(c.table_width / 2, 1.66), radius=c.ball_radius)
     balls = [cue_ball, ball3, ball7, ball9]
-    table = Table(width=c.table_width, height=c.table_height, balls=balls, pockets=None)
+    table = Table(width=c.table_width, height=c.table_height, balls=balls, pockets=[])
     return table
 
 
@@ -129,8 +130,8 @@ def animate(logs, flip=False):
 
     cloth_color = (202, 222, 235)
     scale = 800 / max([c.table_width, c.table_height])
-    screen_width = scale * c.table_height if flip else c.table_width
-    screen_height = scale * c.table_width if flip else c.table_height
+    screen_width = scale * (c.table_height if flip else c.table_width)
+    screen_height = scale * (c.table_width if flip else c.table_height)
     radius = c.ball_radius * scale
 
     pygame.init()
@@ -143,8 +144,8 @@ def animate(logs, flip=False):
     def draw_balls(balls):
         for ball in balls:
             rvw = ball['rvw']
-            x = rvw[0][0] * scale
-            y = rvw[0][1] * scale
+            x = scale * (rvw[0][0] if flip else rvw[0][1])
+            y = scale * (rvw[0][1] if flip else rvw[0][0])
             pygame.draw.ellipse(
                 surface=screen,
                 color=COLOR_MAP[ball['color']],
@@ -164,13 +165,15 @@ def animate(logs, flip=False):
 
 if __name__ == '__main__':
     t = get_demo_table()
+    angle1, angle2 = get_common_tangent_angles(cue_ball=t.balls[0], target_ball=t.balls[-1])
+    print(angle1, angle2)
     shot(
         table=t,
-        v_cue=0.5,
-        phi=96,
+        v_cue=1,
+        phi=81,
         theta=0,
         a=0,
         b=0,
     )
     simulate(t, dt=0.02)
-    animate(t.log, True)
+    animate(t.log, False)
