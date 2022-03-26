@@ -566,6 +566,7 @@ public class TrajectoryPlanner : MonoBehaviour
 
     private byte[] CaptureScreenshot()
     {
+        Debug.Log(topCamera);
         topCamera.targetTexture = renderTexture;
         RenderTexture currentRT = RenderTexture.active;
         RenderTexture.active = renderTexture;

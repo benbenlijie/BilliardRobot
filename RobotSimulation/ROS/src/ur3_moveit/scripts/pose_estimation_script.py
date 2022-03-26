@@ -2,10 +2,16 @@
 
 from ur3_moveit.setup_and_run_model import *
 
+import sys
+
 import rospy
 import io
 import os
 import math
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from get_balls_pos import PosEstimation
+
 
 from ur3_moveit.srv import PoseEstimationService, PoseEstimationServiceResponse
 from PIL import Image, ImageOps
@@ -15,7 +21,6 @@ from scipy.spatial.transform import Rotation as R
 NODE_NAME = "PoseEstimationNode"
 PACKAGE_LOCATION = os.path.dirname(os.path.realpath(__file__))[
     :-(len("/scripts"))]  # remove "/scripts"
-MODEL_PATH = PACKAGE_LOCATION + "/models/UR3_single_cube_model.tar"
 
 count = 0
 
@@ -56,15 +61,27 @@ def _run_model(image_path, req):
     # output = run_model_main(image_path, MODEL_PATH)
     # position = output[1].flatten()
     # quaternion = output[0].flatten()
-    print('=====> todo: running model, to get estimated pose')
-    print("cue ball pose")
-    print(req.cue_ball_pose)
-    print("other balls")
-    print(req.balls_pose)
+    # print('=====> todo: running model, to get estimated pose')
+    # print("cue ball pose")
+    # print(req.cue_ball_pose)
+    # print("other balls")
+    # print(req.balls_pose)
 
     position = [0.1, 0.1, 0.1]
     quaternion = [0.3, 0.3, 0.3, 0.3]
 
+    w = 960
+    h = 540
+    debug = False
+    estimator = PosEstimation(image_path)
+    cue_ball_center = estimator.getCueBallPosition(w, h, debug)
+    balls_center = estimator.getBallsPosition(w, h, debug, cue_x = cue_ball_center[0], cue_y = cue_ball_center[1])
+    print('cue ball center: =========>')
+    print(cue_ball_center)
+    print('balls center: =========>')
+    print(balls_center)
+    # TODO: planning algorithm
+    
     return position, quaternion
 
 
@@ -106,6 +123,15 @@ def pose_estimation_main(req):
     print("Started estimation pipeline")
     image_path = _save_image(req)
     print("Predicting from screenshot " + image_path)
+
+    # This is the final pose, to guide the robot how to move
+    # the core logic is in _run_model
+    # mainly two things:
+    # 1. get the balls and cue ball position
+    # 2. decision
+    # the output should be two list
+    # est_position = [], length 3
+    # est_rotation = [], length 4
     est_position, est_rotation = _run_model(image_path, req)
     response = _format_response(est_position, est_rotation)
     print("Finished estimation pipeline\n")
