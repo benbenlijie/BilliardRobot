@@ -54,7 +54,7 @@ public class TrajectoryPlanner : MonoBehaviour
     private List<ArticulationBody> gripperJoints;
 
     // UI elements
-    private Button InitializeButton;
+    private Button ShootButton;
     private Button RandomizeButton;
     private Button ServiceButton;
     private Text ActualPos;
@@ -130,6 +130,7 @@ public class TrajectoryPlanner : MonoBehaviour
         cueStick.hitObject = true;
         yield return new WaitForSeconds(poseAssignmentWait);
         Initialize();
+        
     }
 
     public IEnumerator ResetCueStick(Vector3 position, Quaternion rotation)
@@ -199,6 +200,7 @@ public class TrajectoryPlanner : MonoBehaviour
         {
             cue.GetComponent<MeshCollider>().enabled=true;
         }
+        ShootButton.interactable = true;
     }
 
     private bool ResetRobotToDefaultPosition()
@@ -320,6 +322,8 @@ public class TrajectoryPlanner : MonoBehaviour
         // }
         // Vector3 targetPos = target.position - robot.position;
 
+        ShootButton.interactable = false;
+
         MoverServiceRequest request = new MoverServiceRequest();
         request.joints_input = CurrentJointConfig();
         var orientation = Quaternion.Euler(0, yAngle, 0);
@@ -373,9 +377,9 @@ public class TrajectoryPlanner : MonoBehaviour
         else
         {
             Debug.LogError("No trajectory returned from MoverService.");
-            InitializeButton.interactable = true;
-            RandomizeButton.interactable = true;
-            ServiceButton.interactable = true;
+            ShootButton.interactable = true;
+            // RandomizeButton.interactable = true;
+            // ServiceButton.interactable = true;
         }
     }
 
@@ -687,7 +691,7 @@ public class TrajectoryPlanner : MonoBehaviour
         ros = ROSConnection.instance;
 
         // Assign UI elements
-        // InitializeButton = GameObject.Find("ROSObjects/Canvas/ButtonPanel/DefaultButton").GetComponent<Button>();
+        ShootButton = GameObject.Find("Canvas/poseBtn").GetComponent<Button>();
         // RandomizeButton = GameObject.Find("ROSObjects/Canvas/ButtonPanel/RandomButton").GetComponent<Button>();
         // ServiceButton = GameObject.Find("ROSObjects/Canvas/ButtonPanel/ServiceButton").GetComponent<Button>();
 
