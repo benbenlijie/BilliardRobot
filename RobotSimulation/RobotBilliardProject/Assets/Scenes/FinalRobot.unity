@@ -1874,7 +1874,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.402
+      value: 0.43
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1882,7 +1882,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.22
+      value: 1.28
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3780,14 +3780,13 @@ MonoBehaviour:
   shootMaxDistance: 0.3
   cueShootWait: 1
   scenario: {fileID: 0}
-  mainCamera: {fileID: 0}
   cueBall: {fileID: 0}
   ball1: {fileID: 0}
   ball2: {fileID: 0}
   ball3: {fileID: 0}
   ball4: {fileID: 0}
   ball5: {fileID: 0}
-  topCamera: {fileID: 0}
+  topCamera: {fileID: 1462377748}
   rosSenseServiceName: pose_estimation_srv
 --- !u!4 &443603554
 Transform:
@@ -4770,7 +4769,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_RootOrder
@@ -4790,7 +4789,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.057999983
+      value: 0.199
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.y
@@ -4798,7 +4797,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.039
+      value: 1.42
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalRotation.w
