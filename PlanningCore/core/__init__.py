@@ -74,16 +74,17 @@ def animate(pockets, logs, flip=False):
 
 
 if __name__ == '__main__':
-    t = get_demo_table()
-    angles = search_optimal_strike(table=t, dt=0.02, dang=0.5)
-    print(angles)
-    shot(
-        table=t,
-        v_cue=1,
-        phi=angles[-1][1],
-        theta=0,
-        a=0,
-        b=0,
-    )
-    simulate(t, dt=0.02, log=True)
+    from PlanningCore.billiard import init_table
+    t = init_table((0,0),[(1,1)])
+    # angles = search_optimal_strike(table=t, dt=0.02, dang=0.5)
+    # print(angles)
+    # shot(
+    #     table=t,
+    #     v_cue=1,
+    #     phi=angles[-1][1],
+    #     theta=0,
+    #     a=0,
+    #     b=0,
+    # )
+    # simulate(t, dt=0.02, log=True)
     animate(t.pockets, t.log, False)

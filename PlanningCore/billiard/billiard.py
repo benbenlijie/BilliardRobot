@@ -1,8 +1,10 @@
 from copy import deepcopy
-
+from itertools import product
 import numpy as np
 
+import PlanningCore.core
 from PlanningCore.core import State
+from PlanningCore.core import constants, coordinate_transformation
 
 
 class Ball(object):
@@ -113,3 +115,13 @@ class Table(object):
             'index': self.n,
             'balls': [{'state': ball.state, 'rvw': ball.rvw, 'color': ball.color} for ball in self.balls],
         })
+
+def init_table(cueballpos, ballposlist):
+    cue_ball = Ball(no=None, color='white', pos=coordinate_transformation(cueballpos), radius=constants.ball_radius, is_cue=True)
+    balls = [Ball(no=None, color='yellow', pos=coordinate_transformation(pos), radius=constants.ball_radius) for pos in ballposlist]
+    balls.insert(0, cue_ball)
+    pockets = [Pocket(no=i, pos=(x, y), radius=constants.pocket_radius)
+               for i, (x, y) in enumerate(product((0, constants.table_width), (0, constants.table_height/2, constants.table_height)))]
+    table = Table(width=constants.table_width, height=constants.table_height, balls=balls, pockets=pockets)
+    return table
+

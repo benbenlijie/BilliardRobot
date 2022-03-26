@@ -63,6 +63,4 @@ def get_common_tangent_angles(cue_ball, target_ball):
 
 
 def coordinate_transformation(pos):
-    pos[0] += table_width/2  # X axis.
-    pos[1] += table_height/2  # Y axis.
-    return pos
+    return pos[0] + table_width/2, pos[1] + table_height/2
