@@ -18,7 +18,7 @@ from PlanningCore.core.constants import (
 from PlanningCore.core.utils import coordinate_rotation, unit_vector, angle, get_rel_velocity, is_pocket
 
 
-def cue_strike(cue_velocity, phi, theta, a=0, b=0):
+def cue_strike(cue_velocity, phi, theta=0, a=0, b=0):
     """Strike a ball
                               , - ~  ,
     ◎───────────◎         , '          ' ,

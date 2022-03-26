@@ -1,6 +1,8 @@
 import numpy as np
 
-from PlanningCore.core import get_common_tangent_angles, shot, simulate, State
+from PlanningCore.core.utils import get_common_tangent_angles
+from PlanningCore.core.simulation import shot, simulate
+from PlanningCore.core.constants import State
 
 
 def search_optimal_strike(table, dt, dang):
