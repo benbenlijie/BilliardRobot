@@ -8,7 +8,7 @@ from PlanningCore.core.constants import State
 def search_optimal_strike(table, dt, dang):
     """Search optimal strike."""
     angles = []
-    for ball_id, target_ball in enumerate(table.balls[1:]):
+    for target_ball in table.balls[1:]:
         angle1, angle2 = get_common_tangent_angles(
             cue_ball=table.balls[0],
             target_ball=target_ball,

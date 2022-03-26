@@ -117,8 +117,8 @@ class Table(object):
         })
 
 def init_table(cueballpos, ballposlist):
-    cue_ball = Ball(no=None, color='white', pos=coordinate_transformation(cueballpos), radius=constants.ball_radius, is_cue=True)
-    balls = [Ball(no=None, color='yellow', pos=coordinate_transformation(pos), radius=constants.ball_radius) for pos in ballposlist]
+    cue_ball = Ball(no=0, color='white', pos=coordinate_transformation(cueballpos), radius=constants.ball_radius, is_cue=True)
+    balls = [Ball(no=i+1, color='yellow', pos=coordinate_transformation(pos), radius=constants.ball_radius) for i,pos in enumerate(ballposlist)]
     balls.insert(0, cue_ball)
     pockets = [Pocket(no=i, pos=(x, y), radius=constants.pocket_radius)
                for i, (x, y) in enumerate(product((0, constants.table_width), (0, constants.table_height/2, constants.table_height)))]
