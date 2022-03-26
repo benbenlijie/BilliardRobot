@@ -4,128 +4,32 @@ import numpy as np
 import pygame
 
 from PlanningCore.billiard import Ball, Table, Pocket
-from PlanningCore.core.constants import State
+from PlanningCore.core.constants import *
+from PlanningCore.core.physics import *
+from PlanningCore.core.planning import *
+from PlanningCore.core.simulation import *
+from PlanningCore.core.utils import *
 from PlanningCore.core import constants as c
-from PlanningCore.core.physics import ball_ball_collision, ball_cushion_collision, evolve_ball_motion, Force, cue_strike
-from PlanningCore.core.plan import search_optimal_strike
-from PlanningCore.core.utils import get_rel_velocity, get_common_tangent_angles
-
-
-def evolve(pockets, balls, dt):
-    for ball in balls:
-        rvw, state = evolve_ball_motion(
-            pockets=pockets,
-            state=ball.state,
-            rvw=ball.rvw,
-            t=dt,
-        )
-        ball.set_rvw(rvw)
-        ball.set_state(state)
-
-
-def detect_collisions(table):
-    collisions = []
-
-    for i, ball1 in enumerate(table.balls):
-        for j, ball2 in enumerate(table.balls):
-            if i >= j:
-                continue
-            if ball1.state == State.stationary and ball2.state == State.stationary:
-                continue
-
-            if np.linalg.norm(ball1.rvw[0] - ball2.rvw[0]) <= (ball1.radius + ball2.radius):
-                collisions.append({
-                    'type': 'ball_ball',
-                    'agents': (i, j),
-                })
-
-    for i, ball in enumerate(table.balls):
-        ball_x, ball_y = ball.pos
-        if ball_x <= table.left + ball.radius:
-            collisions.append({
-                'type': 'ball_cushion',
-                'agents': (i, 'L'),
-            })
-        elif ball_x >= table.right - ball.radius:
-            collisions.append({
-                'type': 'ball_cushion',
-                'agents': (i, 'R'),
-            })
-        elif ball_y <= table.bottom + ball.radius:
-            collisions.append({
-                'type': 'ball_cushion',
-                'agents': (i, 'B'),
-            })
-        elif ball_y >= table.top - ball.radius:
-            collisions.append({
-                'type': 'ball_cushion',
-                'agents': (i, 'T'),
-            })
-    return collisions
-
-
-def resolve(collision, table):
-    if collision['type'] == 'ball_ball':
-        ball_id1, ball_id2 = collision['agents']
-
-        rvw1 = table.balls[ball_id1].rvw
-        rvw2 = table.balls[ball_id2].rvw
-
-        rvw1, rvw2 = ball_ball_collision(rvw1, rvw2)
-        s1, s2 = State.sliding, State.sliding
-
-        table.balls[ball_id1].set_rvw(rvw1)
-        table.balls[ball_id1].set_state(s1)
-        table.balls[ball_id2].set_rvw(rvw2)
-        table.balls[ball_id2].set_state(s2)
-
-    elif collision['type'] == 'ball_cushion':
-        ball_id, cushion_id = collision['agents']
-
-        rvw = table.balls[ball_id].rvw
-        normal = table.normal[cushion_id]
-
-        rvw = ball_cushion_collision(rvw, normal)
-        s = State.sliding
-
-        table.balls[ball_id].set_rvw(rvw)
-        table.balls[ball_id].set_state(s)
-
-
-def simulate(table, dt=0.033):
-    for t in np.diff(np.arange(0, 5, dt)):
-        if np.all([ball.state == State.stationary for ball in table.balls]):
-            break
-        evolve(table.pockets, table.balls, t)
-        table.snapshot(t)
-
-        collisions = detect_collisions(table)
-        for collision in collisions:
-            resolve(collision, table)
-            table.snapshot(t)
 
 
 def get_demo_table():
     cue_ball = Ball(no=0, color='white', pos=(c.table_width / 2, 0.33), radius=c.ball_radius, is_cue=True)
     ball7 = Ball(no=7, color='blue', pos=(c.table_width/2 - c.table_width/5, 0.91), radius=c.ball_radius)
-    ball3 = Ball(no=3, color='yellow', pos=(c.table_width/2 + c.table_width/6 + 0.2, 1.2), radius=c.ball_radius)
-    ball9 = Ball(no=9, color='black', pos=(c.table_width / 2, 1.66), radius=c.ball_radius)
-    balls = [cue_ball, ball3, ball7, ball9]
-    table = Table(width=c.table_width, height=c.table_height, balls=balls, pockets=[])
+    ball3 = Ball(no=3, color='yellow', pos=(c.table_width/2 + c.table_width/6 + 0.2, 2.2), radius=c.ball_radius)
+    ball9 = Ball(no=9, color='black', pos=(c.table_width / 2 - 1, 3.66), radius=c.ball_radius)
+    balls = [cue_ball, ball3, ball9]
+    pocket1 = Pocket(no=1, pos=(0, 0), radius=c.pocket_radius)
+    pocket2 = Pocket(no=2, pos=(c.table_width, 0), radius=c.pocket_radius)
+    pocket3 = Pocket(no=3, pos=(0, c.table_height / 2), radius=c.pocket_radius)
+    pocket4 = Pocket(no=4, pos=(c.table_width, c.table_height / 2), radius=c.pocket_radius)
+    pocket5 = Pocket(no=5, pos=(0, c.table_height), radius=c.pocket_radius)
+    pocket6 = Pocket(no=6, pos=(c.table_width, c.table_height), radius=c.pocket_radius)
+    pockets = [pocket1, pocket2, pocket3, pocket4, pocket5, pocket6]
+    table = Table(width=c.table_width, height=c.table_height, balls=balls, pockets=pockets)
     return table
 
 
-def shot(table, v_cue, phi, theta, a, b):
-    v, w = cue_strike(v_cue, phi, theta, a, b)
-    rvw = table.balls[0].rvw
-    rvw[1] = v
-    rvw[2] = w
-    state = State.rolling if np.abs(np.sum(get_rel_velocity(rvw))) <= 1e-10 else State.sliding
-    table.balls[0].set_rvw(rvw)
-    table.balls[0].set_state(state)
-
-
-def animate(logs, flip=False):
+def animate(pockets, logs, flip=False):
     from PlanningCore.billiard.visualize import COLOR_MAP
 
     cloth_color = (202, 222, 235)
@@ -133,6 +37,7 @@ def animate(logs, flip=False):
     screen_width = scale * (c.table_height if flip else c.table_width)
     screen_height = scale * (c.table_width if flip else c.table_height)
     radius = c.ball_radius * scale
+    pocket_radius = c.pocket_radius * scale
 
     pygame.init()
     screen = pygame.display.set_mode((screen_width, screen_height), pygame.HWSURFACE | pygame.DOUBLEBUF)
@@ -148,8 +53,18 @@ def animate(logs, flip=False):
             y = scale * (rvw[0][1] if flip else rvw[0][0])
             pygame.draw.ellipse(
                 surface=screen,
-                color=COLOR_MAP[ball['color']],
+                color=COLOR_MAP[ball['color']] if ball['state'] != State.pocketed else COLOR_MAP['green'],
                 rect=(y - radius, x - radius, radius * 2, radius * 2),
+            )
+
+    def draw_pockets(pockets):
+        for pocket in pockets:
+            x = scale * (pocket.pos[0] if flip else pocket.pos[1])
+            y = scale * (pocket.pos[1] if flip else pocket.pos[0])
+            pygame.draw.ellipse(
+                surface=screen,
+                color=COLOR_MAP['black'],
+                rect=(y - pocket_radius, x - pocket_radius, pocket_radius * 2, pocket_radius * 2),
             )
 
     while True:
@@ -159,21 +74,22 @@ def animate(logs, flip=False):
                     sys.exit()
             draw_table()
             draw_balls(log['balls'])
+            draw_pockets(pockets)
             pygame.display.update()
             clock.tick(60)
 
 
 if __name__ == '__main__':
     t = get_demo_table()
-    angle1, angle2 = get_common_tangent_angles(cue_ball=t.balls[0], target_ball=t.balls[-1])
-    print(angle1, angle2)
+    angles = search_optimal_strike(table=t, dt=0.02, dang=0.5)
+    print(angles)
     shot(
         table=t,
         v_cue=1,
-        phi=81,
+        phi=angles[-1][1],
         theta=0,
         a=0,
         b=0,
     )
     simulate(t, dt=0.02)
-    animate(t.log, False)
+    animate(t.pockets, t.log, False)

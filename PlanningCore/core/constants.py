@@ -38,7 +38,7 @@ cushion_height = cushion_height_fraction * 2 * ball_radius
 # side_pocket_depth = 0.00437
 # side_pocket_radius = 0.129 / 2
 # side_jaw_radius = 0.0159 / 2
-side_pocket_radius = 0.2
+pocket_radius = 0.2
 
 
 @dataclass

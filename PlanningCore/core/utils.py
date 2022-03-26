@@ -45,7 +45,7 @@ def is_pocket(ball_pos, pocket):
     return sqrt(
         (ball_pos[0] - pocket.pos[0]) ** 2
         + (ball_pos[1] - pocket.pos[1]) ** 2
-    ) < ball_radius + pocket.radius
+    ) < pocket.radius
 
 
 def get_common_tangent_angles(cue_ball, target_ball):
@@ -60,3 +60,8 @@ def get_common_tangent_angles(cue_ball, target_ball):
     angle1 = degrees(alpha - beta)
     angle2 = degrees(np.pi - alpha - beta)
     return sorted([angle1, angle2])
+
+def coordinate_transformation(pos):
+    pos[0] = pos[0] + 1.97 #x axis
+    pos[1] = pos[1] + 3.94 #y axis
+    return pos

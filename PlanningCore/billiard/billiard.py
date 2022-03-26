@@ -1,6 +1,8 @@
+from copy import deepcopy
+
 import numpy as np
 
-from PlanningCore.core.constants import State
+from PlanningCore.core import State
 
 
 class Ball(object):
@@ -73,6 +75,7 @@ class Table(object):
         self.width = width
         self.height = height
         self.balls = balls
+        self.init_balls = deepcopy(self.balls)
         self.pockets = pockets
         self.left = 0
         self.right = self.width
@@ -96,6 +99,11 @@ class Table(object):
             f'Table(width={self.width}, height={self.height}'
             f'balls={self.balls}, pockets={self.pockets})'
         )
+
+    def reset_balls(self):
+        self.balls = deepcopy(self.init_balls)
+        self.log = []
+        self.snapshot(0)
 
     def snapshot(self, dt):
         self.n += 1
