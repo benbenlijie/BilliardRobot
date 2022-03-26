@@ -15,7 +15,7 @@ from PlanningCore.core.constants import (
     u_r,
     g,
 )
-from PlanningCore.core.utils import coordinate_rotation, unit_vector, angle, get_rel_velocity
+from PlanningCore.core.utils import coordinate_rotation, unit_vector, angle, get_rel_velocity, is_pocket
 
 
 def cue_strike(cue_velocity, phi, theta, a=0, b=0):
@@ -164,9 +164,15 @@ def get_spin_time(rvw):
     return np.abs(w[2]) * 2/5*ball_radius/u_sp/g
 
 
-def evolve_ball_motion(state, rvw, t):
-    if state == State.stationary:
+def evolve_ball_motion(pockets, state, rvw, t):
+    if state == State.stationary or state == State.pocketed:
         return rvw, state
+
+    for pocket in pockets:
+        if is_pocket(rvw[0][:2], pocket):
+            rvw[1] = 0
+            rvw[2] = 0
+            return rvw, State.pocketed
 
     if state == State.sliding:
         t_slide = get_slide_time(rvw)

@@ -17,8 +17,8 @@ public class TrajectoryPlanner : MonoBehaviour
 
     // Hardcoded variables 
     private int numRobotJoints = 6;
-    private readonly float jointAssignmentWait = 0.06f;
-    private readonly float poseAssignmentWait = 0.5f;
+    private readonly float jointAssignmentWait = 0.05f;
+    private readonly float poseAssignmentWait = 2f;
     private readonly float gripperAngle = 14f;
     // Offsets to ensure gripper is above grasp points
     private readonly Vector3 pickPoseOffset = new Vector3(0, 0.255f, 0);
@@ -68,31 +68,31 @@ public class TrajectoryPlanner : MonoBehaviour
 
     public Camera mainCamera;
 
-    private enum Poses
-    {
-        PreGrasp,
-        Grasp,
-        PickUp,
-        Place,
-        PostPlace
-    };
+    // private enum Poses
+    // {
+    //     PreGrasp,
+    //     Grasp,
+    //     PickUp,
+    //     Place,
+    //     PostPlace
+    // };
 
-    /// <summary>
-    ///     Opens and closes the attached gripper tool based on a gripping angle.
-    /// </summary>
-    /// <param name="toClose"></param>
-    /// <returns></returns>
-    public IEnumerator IterateToGrip(bool toClose)
-    {
-        var grippingAngle = toClose ? gripperAngle : 0f;
-        for (int i = 0; i < gripperJoints.Count; i++)
-        {
-            var curXDrive = gripperJoints[i].xDrive;
-            curXDrive.target = multipliers[i] * grippingAngle;
-            gripperJoints[i].xDrive = curXDrive;
-        }
-        yield return new WaitForSeconds(jointAssignmentWait);
-    }
+    // /// <summary>
+    // ///     Opens and closes the attached gripper tool based on a gripping angle.
+    // /// </summary>
+    // /// <param name="toClose"></param>
+    // /// <returns></returns>
+    // public IEnumerator IterateToGrip(bool toClose)
+    // {
+    //     var grippingAngle = toClose ? gripperAngle : 0f;
+    //     for (int i = 0; i < gripperJoints.Count; i++)
+    //     {
+    //         var curXDrive = gripperJoints[i].xDrive;
+    //         curXDrive.target = multipliers[i] * grippingAngle;
+    //         gripperJoints[i].xDrive = curXDrive;
+    //     }
+    //     yield return new WaitForSeconds(jointAssignmentWait);
+    // }
 
     public void ShootTheCue()
     {
@@ -103,6 +103,8 @@ public class TrajectoryPlanner : MonoBehaviour
     {
         if (cue == null) yield break;
         Debug.Log("begin to shoot cue");
+        var curJoint = CurrentJointConfig();
+        Debug.Log(curJoint);
         var initPos = cue.transform.position;
         var initRot = cue.transform.rotation;
         cue.transform.position = initPos;
@@ -378,7 +380,7 @@ public class TrajectoryPlanner : MonoBehaviour
                 for (int joint = 0; joint < jointArticulationBodies.Length; joint++)
                 {
                     var joint1XDrive = jointArticulationBodies[joint].xDrive;
-                    joint1XDrive.target = result[joint];
+                    joint1XDrive.target = ((int)(result[joint]*10)) * 1.0f / 10.0f;
                     jointArticulationBodies[joint].xDrive = joint1XDrive;
                 }
                 // Wait for robot to achieve pose for all joint assignments
@@ -394,104 +396,104 @@ public class TrajectoryPlanner : MonoBehaviour
         }
     }
 
-    public void PublishJoints(Vector3 targetPos, Quaternion targetRot)
-    {
-        MoverServiceRequest request = new MoverServiceRequest();
-        request.joints_input = CurrentJointConfig();
+    // public void PublishJoints(Vector3 targetPos, Quaternion targetRot)
+    // {
+    //     MoverServiceRequest request = new MoverServiceRequest();
+    //     request.joints_input = CurrentJointConfig();
 
-        // Pick Pose
-        request.pick_pose = new RosMessageTypes.Geometry.Pose
-        {
-            position = (targetPos + pickPoseOffset).To<FLU>(),
-            orientation = Quaternion.Euler(90, targetRot.eulerAngles.y, 0).To<FLU>()
-        };
+    //     // Pick Pose
+    //     request.pick_pose = new RosMessageTypes.Geometry.Pose
+    //     {
+    //         position = (targetPos + pickPoseOffset).To<FLU>(),
+    //         orientation = Quaternion.Euler(90, targetRot.eulerAngles.y, 0).To<FLU>()
+    //     };
 
-        // Place Pose
-        request.place_pose = new RosMessageTypes.Geometry.Pose
-        {
-            position = (goal.position + placePoseOffset).To<FLU>(),
-            orientation = pickOrientation.To<FLU>()
-        };
+    //     // Place Pose
+    //     request.place_pose = new RosMessageTypes.Geometry.Pose
+    //     {
+    //         position = (goal.position + placePoseOffset).To<FLU>(),
+    //         orientation = pickOrientation.To<FLU>()
+    //     };
 
-        ros.SendServiceMessage<MoverServiceResponse>(rosServiceName, request, TrajectoryResponse);
-    }
+    //     ros.SendServiceMessage<MoverServiceResponse>(rosServiceName, request, TrajectoryResponse);
+    // }
 
-    void TrajectoryResponse(MoverServiceResponse response)
-    {
-        if (response.trajectories != null && response.trajectories.Length > 0)
-        {
-            Debug.Log("Trajectory returned.");
-            StartCoroutine(ExecuteTrajectories(response));
-        }
-        else
-        {
-            Debug.LogError("No trajectory returned from MoverService.");
-            InitializeButton.interactable = true;
-            RandomizeButton.interactable = true;
-            ServiceButton.interactable = true;
-        }
-    }
+    // void TrajectoryResponse(MoverServiceResponse response)
+    // {
+    //     if (response.trajectories != null && response.trajectories.Length > 0)
+    //     {
+    //         Debug.Log("Trajectory returned.");
+    //         StartCoroutine(ExecuteTrajectories(response));
+    //     }
+    //     else
+    //     {
+    //         Debug.LogError("No trajectory returned from MoverService.");
+    //         InitializeButton.interactable = true;
+    //         RandomizeButton.interactable = true;
+    //         ServiceButton.interactable = true;
+    //     }
+    // }
 
-    /// <summary>
-    ///     Execute the returned trajectories from the MoverService.
-    ///
-    ///     The expectation is that the MoverService will return four trajectory plans,
-    ///         PreGrasp, Grasp, PickUp, and Place,
-    ///     where each plan is an array of robot poses. A robot pose is the joint angle values
-    ///     of the six robot joints.
-    ///
-    ///     Executing a single trajectory will iterate through every robot pose in the array while updating the
-    ///     joint values on the robot.
-    /// 
-    /// </summary>
-    /// <param name="response"> MoverServiceResponse received from ur3_moveit mover service running in ROS</param>
-    /// <returns></returns>
-    private IEnumerator ExecuteTrajectories(MoverServiceResponse response)
-    {
-        if (response.trajectories != null)
-        {
-            // For every trajectory plan returned
-            for (int poseIndex = 0; poseIndex < response.trajectories.Length; poseIndex++)
-            {
-                // For every robot pose in trajectory plan
-                for (int jointConfigIndex = 0; jointConfigIndex < response.trajectories[poseIndex].joint_trajectory.points.Length; jointConfigIndex++)
-                {
-                    var jointPositions = response.trajectories[poseIndex].joint_trajectory.points[jointConfigIndex].positions;
-                    float[] result = jointPositions.Select(r => (float)r * Mathf.Rad2Deg).ToArray();
+    // /// <summary>
+    // ///     Execute the returned trajectories from the MoverService.
+    // ///
+    // ///     The expectation is that the MoverService will return four trajectory plans,
+    // ///         PreGrasp, Grasp, PickUp, and Place,
+    // ///     where each plan is an array of robot poses. A robot pose is the joint angle values
+    // ///     of the six robot joints.
+    // ///
+    // ///     Executing a single trajectory will iterate through every robot pose in the array while updating the
+    // ///     joint values on the robot.
+    // /// 
+    // /// </summary>
+    // /// <param name="response"> MoverServiceResponse received from ur3_moveit mover service running in ROS</param>
+    // /// <returns></returns>
+    // private IEnumerator ExecuteTrajectories(MoverServiceResponse response)
+    // {
+    //     if (response.trajectories != null)
+    //     {
+    //         // For every trajectory plan returned
+    //         for (int poseIndex = 0; poseIndex < response.trajectories.Length; poseIndex++)
+    //         {
+    //             // For every robot pose in trajectory plan
+    //             for (int jointConfigIndex = 0; jointConfigIndex < response.trajectories[poseIndex].joint_trajectory.points.Length; jointConfigIndex++)
+    //             {
+    //                 var jointPositions = response.trajectories[poseIndex].joint_trajectory.points[jointConfigIndex].positions;
+    //                 float[] result = jointPositions.Select(r => (float)r * Mathf.Rad2Deg).ToArray();
 
-                    // Set the joint values for every joint
-                    for (int joint = 0; joint < jointArticulationBodies.Length; joint++)
-                    {
-                        var joint1XDrive = jointArticulationBodies[joint].xDrive;
-                        joint1XDrive.target = result[joint];
-                        jointArticulationBodies[joint].xDrive = joint1XDrive;
-                    }
-                    // Wait for robot to achieve pose for all joint assignments
-                    yield return new WaitForSeconds(jointAssignmentWait);
-                }
+    //                 // Set the joint values for every joint
+    //                 for (int joint = 0; joint < jointArticulationBodies.Length; joint++)
+    //                 {
+    //                     var joint1XDrive = jointArticulationBodies[joint].xDrive;
+    //                     joint1XDrive.target = result[joint];
+    //                     jointArticulationBodies[joint].xDrive = joint1XDrive;
+    //                 }
+    //                 // Wait for robot to achieve pose for all joint assignments
+    //                 yield return new WaitForSeconds(jointAssignmentWait);
+    //             }
 
-                // Close the gripper if completed executing the trajectory for the Grasp pose
-                if (poseIndex == (int)Poses.Grasp)
-                {
-                    StartCoroutine(IterateToGrip(true));
-                    yield return new WaitForSeconds(jointAssignmentWait);
-                }
-                else if (poseIndex == (int)Poses.Place)
-                {
-                    yield return new WaitForSeconds(poseAssignmentWait);
-                    // Open the gripper to place the target cube
-                    StartCoroutine(IterateToGrip(false));
-                }
-                // Wait for the robot to achieve the final pose from joint assignment
-                yield return new WaitForSeconds(poseAssignmentWait);
-            }
+    //             // Close the gripper if completed executing the trajectory for the Grasp pose
+    //             if (poseIndex == (int)Poses.Grasp)
+    //             {
+    //                 StartCoroutine(IterateToGrip(true));
+    //                 yield return new WaitForSeconds(jointAssignmentWait);
+    //             }
+    //             else if (poseIndex == (int)Poses.Place)
+    //             {
+    //                 yield return new WaitForSeconds(poseAssignmentWait);
+    //                 // Open the gripper to place the target cube
+    //                 StartCoroutine(IterateToGrip(false));
+    //             }
+    //             // Wait for the robot to achieve the final pose from joint assignment
+    //             yield return new WaitForSeconds(poseAssignmentWait);
+    //         }
 
-            // Re-enable buttons
-            InitializeButton.interactable = true;
-            RandomizeButton.interactable = true;
-            yield return new WaitForSeconds(jointAssignmentWait);
-        }
-    }
+    //         // Re-enable buttons
+    //         InitializeButton.interactable = true;
+    //         RandomizeButton.interactable = true;
+    //         yield return new WaitForSeconds(jointAssignmentWait);
+    //     }
+    // }
 
     /// <summary>
     ///     Find all robot joints in Awake() and add them to the jointArticulationBodies array.

@@ -1,10 +1,9 @@
-import time
 from math import cos, radians, sin
 
 import pygame
 
-from PlanningCore.billiard import Table, Ball, Pocket
-from PlanningCore.core.physics import Force
+from PlanningCore.billiard import Table, Ball
+from PlanningCore.core import Force
 
 
 COLOR_MAP = {
@@ -12,7 +11,7 @@ COLOR_MAP = {
     'white': (236, 240, 241),
     'gray': (123, 125, 125),
     'yellow': (244, 208, 63),
-    'blue': (52, 152, 53),
+    'blue': (52, 52, 153),
     'red': (203, 67, 53),
     'purple': (136, 78, 160),
     'orange': (230, 126, 34),
