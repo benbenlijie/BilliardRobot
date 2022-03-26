@@ -116,12 +116,12 @@ class Table(object):
             'balls': [{'state': ball.state, 'rvw': ball.rvw, 'color': ball.color} for ball in self.balls],
         })
 
-def init_table(cueballpos, ballposlist):
-    cue_ball = Ball(no=0, color='white', pos=coordinate_transformation(cueballpos), radius=constants.ball_radius, is_cue=True)
-    balls = [Ball(no=i+1, color='yellow', pos=coordinate_transformation(pos), radius=constants.ball_radius) for i,pos in enumerate(ballposlist)]
+
+def init_table(cue_ball_pos, balls_pos):
+    cue_ball = Ball(no=0, color='white', pos=coordinate_transformation(cue_ball_pos), radius=constants.ball_radius, is_cue=True)
+    balls = [Ball(no=i+1, color='yellow', pos=coordinate_transformation(pos), radius=constants.ball_radius) for i,pos in enumerate(balls_pos)]
     balls.insert(0, cue_ball)
     pockets = [Pocket(no=i, pos=(x, y), radius=constants.pocket_radius)
                for i, (x, y) in enumerate(product((0, constants.table_width), (0, constants.table_height/2, constants.table_height)))]
     table = Table(width=constants.table_width, height=constants.table_height, balls=balls, pockets=pockets)
     return table
-

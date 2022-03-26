@@ -59,6 +59,9 @@ def get_common_tangent_angles(cue_ball, target_ball):
         beta = atan((r2[0] - r1[0]) / (r2[1] - r1[1]))
     angle1 = degrees(alpha - beta)
     angle2 = degrees(np.pi - alpha - beta)
+    if r2[1] < r1[1]:
+        angle1 += 180
+        angle2 += 180
     return sorted([angle1, angle2])
 
 
