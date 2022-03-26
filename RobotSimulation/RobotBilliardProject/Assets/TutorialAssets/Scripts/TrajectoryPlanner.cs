@@ -314,7 +314,8 @@ public class TrajectoryPlanner : MonoBehaviour
         return localPos;
     }
 
-    public void PublishBilliardJoints()
+    public void PublishBilliardJoints(Vector3 ballPosition, float angle=0)
+    //public void PublishBilliardJoints()
     {
         // if (target == null)
         // {
@@ -326,7 +327,9 @@ public class TrajectoryPlanner : MonoBehaviour
 
         MoverServiceRequest request = new MoverServiceRequest();
         request.joints_input = CurrentJointConfig();
-        var orientation = Quaternion.Euler(0, yAngle, 0);
+        var orientation = Quaternion.Euler(0, angle, 0);
+
+        // targetPoint.position = ballPosition;
 
         if (targetPoint == null || lookatPoint == null)
         {
@@ -334,20 +337,27 @@ public class TrajectoryPlanner : MonoBehaviour
             return;
             
         }
-
         Vector3 tpLocalPos = ConvertToRobotPos(targetPoint.position);
-        // Debug.Log("tp global pose: " + targetPoint.position + "tp local pos: "+ tpLocalPos+ targetPoint.localPosition);
-        
-        
+        Debug.Log("tp global pose: " + targetPoint.position + "tp local pos: "+ tpLocalPos+ targetPoint.localPosition);
         Vector3 relativePos = lookatPoint.position - targetPoint.position;
-        orientation = Quaternion.LookRotation(relativePos, Vector3.up);
+        // orientation = Quaternion.LookRotation(relativePos, Vector3.up);
         Debug.Log("orientation: " + orientation.eulerAngles);
         orientation = Quaternion.Euler(0, orientation.eulerAngles.y - yAngle, 0);
+        
+        Vector3 dir = orientation * new Vector3(0, 0, -cueLength);
         Transform root = targetPoint.parent;
-        Vector3 cueOffset = root.InverseTransformVector(relativePos.normalized * -cueLength);
+        Vector3 cueOffset = root.InverseTransformVector(dir);
+        Debug.Log("Check orientation!");
+        Debug.Log(root.InverseTransformVector(relativePos.normalized));
+        Debug.Log(cueOffset.normalized);
+        // Vector3 targetPose = ConvertToRobotPos(ballPosition) + cueOffset;
+        // Debug.Log("ball: " +  ballPosition + ", target_pose: " + targetPose + " , orientation " + orientation);
+
+        // Vector3 cueOffset = root.InverseTransformVector(relativePos.normalized * -cueLength);
         
         Vector3 targetPose = targetPoint.localPosition + cueOffset;
         
+
 
         request.pick_pose = new RosMessageTypes.Geometry.Pose{
             position = targetPose.To<FLU>(),
@@ -361,8 +371,8 @@ public class TrajectoryPlanner : MonoBehaviour
         };
 
         Debug.Log("request info: " + targetPose + " orientation: " + orientation.eulerAngles);
-        Debug.Log("relative : " + relativePos.normalized * cueLength);
-        Debug.Log("calculate pose: " + (targetPose + relativePos.normalized * cueLength));
+        // Debug.Log("relative : " + relativePos.normalized * cueLength);
+        // Debug.Log("calculate pose: " + (targetPose + relativePos.normalized * cueLength));
 
         ros.SendServiceMessage<MoverServiceResponse>(rosServiceName, request, BilliardTrajectoryResponse);
     }
@@ -558,12 +568,12 @@ public class TrajectoryPlanner : MonoBehaviour
 
 
     // =============================================
-    public GameObject cueBall;
-    public GameObject ball1;
-    public GameObject ball2;
-    public GameObject ball3;
-    public GameObject ball4;
-    public GameObject ball5;
+    // public GameObject cueBall;
+    // public GameObject ball1;
+    // public GameObject ball2;
+    // public GameObject ball3;
+    // public GameObject ball4;
+    // public GameObject ball5;
     // public GameObject ball6;
     // public GameObject ball7;
     // public GameObject ball8;
@@ -585,7 +595,7 @@ public class TrajectoryPlanner : MonoBehaviour
 
         // Capture the screenshot and pass it to the pose estimation service
         byte[] rawImageData = CaptureScreenshot();
-        // InvokePoseEstimationService(rawImageData);
+        InvokePoseEstimationService(rawImageData);
     }
 
     private void SaveTexture2File(Texture2D texture)
@@ -627,52 +637,24 @@ public class TrajectoryPlanner : MonoBehaviour
         PoseEstimationServiceRequest poseServiceRequest = new PoseEstimationServiceRequest();
         poseServiceRequest.image = rosImage;
 
-        poseServiceRequest.cue_ball_pose = new RosMessageTypes.Geometry.Pose
-        {   // 这个可能整个都要调整的
-            position = cueBall.transform.position.To<FLU>(),
-            // TODO: 这个 orientation要调整
-            orientation = Quaternion.Euler(90, cueBall.transform.eulerAngles.y, 0).To<FLU>()
-        };
+        // poseServiceRequest.cue_ball_pose = new RosMessageTypes.Geometry.Pose
+        // {   // 这个可能整个都要调整的
+        //     position = cueBall.transform.position.To<FLU>(),
+        //     // TODO: 这个 orientation要调整
+        //     orientation = Quaternion.Euler(90, cueBall.transform.eulerAngles.y, 0).To<FLU>()
+        // };
 
         
-        RosMessageTypes.Geometry.Pose ball1_pose = new RosMessageTypes.Geometry.Pose
-        {
-            position = ball1.transform.position.To<FLU>(),
-            // TODO: 这个 orientation要调整
-            orientation = Quaternion.Euler(90, ball1.transform.eulerAngles.y, 0).To<FLU>()
-        };
+        // RosMessageTypes.Geometry.Pose ball1_pose = new RosMessageTypes.Geometry.Pose
+        // {
+        //     position = ball1.transform.position.To<FLU>(),
+        //     // TODO: 这个 orientation要调整
+        //     orientation = Quaternion.Euler(90, ball1.transform.eulerAngles.y, 0).To<FLU>()
+        // };
 
-        RosMessageTypes.Geometry.Pose ball2_pose = new RosMessageTypes.Geometry.Pose
-        {
-            position = ball2.transform.position.To<FLU>(),
-            // TODO: 这个 orientation要调整
-            orientation = Quaternion.Euler(90, ball2.transform.eulerAngles.y, 0).To<FLU>()
-        };
+        // RosMessageTypes.Geometry.Pose[] balls_pose_list = {ball1_pose};
 
-        RosMessageTypes.Geometry.Pose ball3_pose = new RosMessageTypes.Geometry.Pose
-        {
-            position = ball3.transform.position.To<FLU>(),
-            // TODO: 这个 orientation要调整
-            orientation = Quaternion.Euler(90, ball3.transform.eulerAngles.y, 0).To<FLU>()
-        };
-
-        RosMessageTypes.Geometry.Pose ball4_pose = new RosMessageTypes.Geometry.Pose
-        {
-            position = ball4.transform.position.To<FLU>(),
-            // TODO: 这个 orientation要调整
-            orientation = Quaternion.Euler(90, ball4.transform.eulerAngles.y, 0).To<FLU>()
-        };
-
-        RosMessageTypes.Geometry.Pose ball5_pose = new RosMessageTypes.Geometry.Pose
-        {
-            position = ball5.transform.position.To<FLU>(),
-            // TODO: 这个 orientation要调整
-            orientation = Quaternion.Euler(90, ball5.transform.eulerAngles.y, 0).To<FLU>()
-        };
-
-        RosMessageTypes.Geometry.Pose[] balls_pose_list = {ball1_pose, ball2_pose, ball3_pose, ball4_pose, ball5_pose};
-
-        poseServiceRequest.balls_pose = balls_pose_list;
+        // poseServiceRequest.balls_pose = balls_pose_list;
 
         ros.SendServiceMessage<PoseEstimationServiceResponse>(rosSenseServiceName, poseServiceRequest, PoseEstimationCallback);
     }
@@ -680,12 +662,16 @@ public class TrajectoryPlanner : MonoBehaviour
     void PoseEstimationCallback(PoseEstimationServiceResponse response)  
     {
         if (response != null)
-        {
+        {   
+            Debug.Log("#=================");
+            Debug.Log(response.estimated_pose.position);
+            Debug.Log(response.estimated_pose.position.From<RUF>());
+            Debug.Log(response.estimated_pose.orientation.From<RUF>());
             // The position output by the model is the position of the cube relative to the camera so we need to extract its global position 
-            var estimatedPosition = Camera.main.transform.TransformPoint(response.estimated_pose.position.From<RUF>());
-            var estimatedRotation = Camera.main.transform.rotation * response.estimated_pose.orientation.From<RUF>();
+            var estimatedPosition = response.estimated_pose.position.From<RUF>();
+            var estimatedRotation = response.estimated_pose.orientation.From<RUF>();
 
-            // PublishJoints(estimatedPosition, estimatedRotation);
+            PublishBilliardJoints(estimatedPosition, estimatedRotation.x);
 
             // EstimatedPos.text = estimatedPosition.ToString();
             // EstimatedRot.text = estimatedRotation.eulerAngles.ToString();
@@ -720,7 +706,7 @@ public class TrajectoryPlanner : MonoBehaviour
         // EstimatedRot.text = "-";
         StartCoroutine(IterateToGrip(true));
         // Render texture 
-        renderTexture = new RenderTexture(1920, 1080, 24, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+        renderTexture = new RenderTexture(1280, 720, 24, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
         renderTexture.Create();
     }
 }
