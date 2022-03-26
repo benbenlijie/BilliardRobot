@@ -1,1 +1,1 @@
-from PlanningCore.billiard.billiard import Ball, Pocket, Table
+from PlanningCore.billiard.billiard import Ball, Pocket, Table, init_table

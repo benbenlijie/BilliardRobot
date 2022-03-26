@@ -1,13 +1,13 @@
 import numpy as np
 
-from PlanningCore.core import (
+from PlanningCore.core.physics import (
     ball_ball_collision,
     ball_cushion_collision,
     cue_strike,
     evolve_ball_motion,
-    get_rel_velocity,
-    State,
 )
+from PlanningCore.core.utils import get_rel_velocity
+from PlanningCore.core.constants import State
 
 
 def evolve(pockets, balls, dt):
@@ -91,23 +91,25 @@ def resolve(collision, table):
         table.balls[ball_id].set_state(s)
 
 
-def simulate(table, dt=0.033):
+def simulate(table, dt=0.033, log=False):
     while True:
         if np.all([(ball.state == State.stationary or ball.state == State.pocketed) for ball in table.balls]):
             break
         evolve(table.pockets, table.balls, dt)
-        table.snapshot(dt)
+        if log:
+            table.snapshot(dt)
 
         collisions = detect_collisions(table)
         for collision in collisions:
             if collision['type'] == 'ball_cushion':
                 return False
             resolve(collision, table)
-            table.snapshot(dt)
+            if log:
+                table.snapshot(dt)
     return True
 
 
-def shot(table, phi, v_cue=0.5, theta=0, a=0, b=0):
+def shot(table, v_cue, phi, theta=0, a=0, b=0):
     v, w = cue_strike(v_cue, phi, theta, a, b)
     rvw = table.balls[0].rvw
     rvw[1] = v
