@@ -45,7 +45,7 @@ def is_pocket(ball_pos, pocket):
     return sqrt(
         (ball_pos[0] - pocket.pos[0]) ** 2
         + (ball_pos[1] - pocket.pos[1]) ** 2
-    ) < ball_radius + pocket.radius
+    ) < pocket.radius
 
 
 def get_common_tangent_angles(cue_ball, target_ball):
