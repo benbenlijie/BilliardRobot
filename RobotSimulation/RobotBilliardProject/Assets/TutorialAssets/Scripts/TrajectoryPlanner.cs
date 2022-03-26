@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Robotics.ROSTCPConnector;
@@ -66,7 +67,6 @@ public class TrajectoryPlanner : MonoBehaviour
 
     public PoseEstimationScenario scenario;
 
-    public Camera mainCamera;
 
     // private enum Poses
     // {
@@ -585,7 +585,19 @@ public class TrajectoryPlanner : MonoBehaviour
 
         // Capture the screenshot and pass it to the pose estimation service
         byte[] rawImageData = CaptureScreenshot();
-        InvokePoseEstimationService(rawImageData);
+        // InvokePoseEstimationService(rawImageData);
+    }
+
+    private void SaveTexture2File(Texture2D texture)
+    {
+        byte[] bytes = texture.EncodeToPNG();
+        var dirPath = Application.dataPath + "/../SaveImages/";
+        if(!Directory.Exists(dirPath)) {
+            Directory.CreateDirectory(dirPath);
+        }
+        
+        File.WriteAllBytes(dirPath + "Image.png", bytes);
+        Debug.Log("Save image to " + dirPath + "Image.png");
     }
 
     private byte[] CaptureScreenshot()
@@ -598,6 +610,7 @@ public class TrajectoryPlanner : MonoBehaviour
         Texture2D mainCameraTexture = new Texture2D(renderTexture.width, renderTexture.height);
         mainCameraTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
         mainCameraTexture.Apply();
+        // SaveTexture2File(mainCameraTexture);
         RenderTexture.active = currentRT;
         // Get the raw byte info from the screenshot
         byte[] imageBytes = mainCameraTexture.GetRawTextureData();
@@ -706,9 +719,8 @@ public class TrajectoryPlanner : MonoBehaviour
         // EstimatedPos.text = "-";
         // EstimatedRot.text = "-";
         StartCoroutine(IterateToGrip(true));
-
         // Render texture 
-        renderTexture = new RenderTexture(mainCamera.pixelWidth, mainCamera.pixelHeight, 24, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
+        renderTexture = new RenderTexture(1920, 1080, 24, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
         renderTexture.Create();
     }
 }
