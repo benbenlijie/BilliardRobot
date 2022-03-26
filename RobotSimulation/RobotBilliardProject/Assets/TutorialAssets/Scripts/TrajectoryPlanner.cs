@@ -77,22 +77,22 @@ public class TrajectoryPlanner : MonoBehaviour
     //     PostPlace
     // };
 
-    // /// <summary>
-    // ///     Opens and closes the attached gripper tool based on a gripping angle.
-    // /// </summary>
-    // /// <param name="toClose"></param>
-    // /// <returns></returns>
-    // public IEnumerator IterateToGrip(bool toClose)
-    // {
-    //     var grippingAngle = toClose ? gripperAngle : 0f;
-    //     for (int i = 0; i < gripperJoints.Count; i++)
-    //     {
-    //         var curXDrive = gripperJoints[i].xDrive;
-    //         curXDrive.target = multipliers[i] * grippingAngle;
-    //         gripperJoints[i].xDrive = curXDrive;
-    //     }
-    //     yield return new WaitForSeconds(jointAssignmentWait);
-    // }
+    /// <summary>
+    ///     Opens and closes the attached gripper tool based on a gripping angle.
+    /// </summary>
+    /// <param name="toClose"></param>
+    /// <returns></returns>
+    public IEnumerator IterateToGrip(bool toClose)
+    {
+        var grippingAngle = toClose ? gripperAngle : 0f;
+        for (int i = 0; i < gripperJoints.Count; i++)
+        {
+            var curXDrive = gripperJoints[i].xDrive;
+            curXDrive.target = multipliers[i] * grippingAngle;
+            gripperJoints[i].xDrive = curXDrive;
+        }
+        yield return new WaitForSeconds(jointAssignmentWait);
+    }
 
     public void ShootTheCue()
     {
@@ -128,6 +128,8 @@ public class TrajectoryPlanner : MonoBehaviour
         cue.transform.position = initPos;
         cue.transform.rotation = initRot;
         cueStick.hitObject = true;
+        yield return new WaitForSeconds(poseAssignmentWait);
+        Initialize();
     }
 
     public IEnumerator ResetCueStick(Vector3 position, Quaternion rotation)
@@ -183,13 +185,20 @@ public class TrajectoryPlanner : MonoBehaviour
 
     private IEnumerator MoveToInitialPosition()
     {
+        if (cue != null)
+        {
+            cue.GetComponent<MeshCollider>().enabled=false;
+        }
         bool isRotationFinished = false;
         while (!isRotationFinished)
         {
             isRotationFinished = ResetRobotToDefaultPosition();
             yield return new WaitForSeconds(jointAssignmentWait);
         }
-        ServiceButton.interactable = true;
+        if (cue != null)
+        {
+            cue.GetComponent<MeshCollider>().enabled=true;
+        }
     }
 
     private bool ResetRobotToDefaultPosition()
@@ -297,6 +306,12 @@ public class TrajectoryPlanner : MonoBehaviour
         return joints;
     }
 
+    public Vector3 ConvertToRobotPos(Vector3 position)
+    {
+        Vector3 localPos = targetPoint.parent.InverseTransformPoint(position);
+        return localPos;
+    }
+
     public void PublishBilliardJoints()
     {
         // if (target == null)
@@ -315,6 +330,9 @@ public class TrajectoryPlanner : MonoBehaviour
             return;
             
         }
+
+        Vector3 tpLocalPos = ConvertToRobotPos(targetPoint.position);
+        // Debug.Log("tp global pose: " + targetPoint.position + "tp local pos: "+ tpLocalPos+ targetPoint.localPosition);
         
         
         Vector3 relativePos = lookatPoint.position - targetPoint.position;
@@ -683,6 +701,7 @@ public class TrajectoryPlanner : MonoBehaviour
         // ActualRot.text = target.transform.eulerAngles.ToString();
         // EstimatedPos.text = "-";
         // EstimatedRot.text = "-";
+        StartCoroutine(IterateToGrip(true));
 
         // Render texture 
         renderTexture = new RenderTexture(mainCamera.pixelWidth, mainCamera.pixelHeight, 24, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB);
