@@ -88,7 +88,7 @@ if __name__ == '__main__':
         [0.8544480919162902, -2.560919162905211],
     ]
     t = init_table(cue_ball_pos, balls_pos)
-    angles = search_optimal_strike(table=t, dt=0.02, dang=0.5)
+    angles = search_optimal_strike(table=t, dt=0.02, dang=0.5, return_once_find=True)
     print(angles)
     shot(
         table=t,

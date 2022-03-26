@@ -7,7 +7,7 @@ from PlanningCore.core.simulation import shot, simulate
 from PlanningCore.core.constants import State
 
 
-def search_optimal_strike(table, dt, dang):
+def search_optimal_strike(table, dt, dang, return_once_find=False):
     """Search optimal strike."""
     angles = []
     for target_ball in table.balls[1:]:
@@ -24,6 +24,9 @@ def search_optimal_strike(table, dt, dang):
                 for ball in table.balls[1:]:
                     if ball.state == State.pocketed:
                         angles.append((ball.no, ang))
+                        if return_once_find:
+                            table.reset_balls()
+                            return angles
             table.reset_balls()
     if not angles:
         cue_ball = table.balls[0]
