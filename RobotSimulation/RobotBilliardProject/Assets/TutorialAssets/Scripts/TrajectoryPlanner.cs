@@ -317,59 +317,36 @@ public class TrajectoryPlanner : MonoBehaviour
     public void PublishBilliardJoints(Vector3 ballPosition, float angle=0)
     //public void PublishBilliardJoints()
     {
-        // if (target == null)
-        // {
-            // return;
-        // }
-        // Vector3 targetPos = target.position - robot.position;
-
         ShootButton.interactable = false;
-
         MoverServiceRequest request = new MoverServiceRequest();
         request.joints_input = CurrentJointConfig();
         var orientation = Quaternion.Euler(0, angle, 0);
-
-        // targetPoint.position = ballPosition;
-
-        if (targetPoint == null || lookatPoint == null)
-        {
-            Debug.LogError("Null targetPoint or null lookatPoint");
-            return;
-            
-        }
-        Vector3 tpLocalPos = ConvertToRobotPos(targetPoint.position);
-        Debug.Log("tp global pose: " + targetPoint.position + "tp local pos: "+ tpLocalPos+ targetPoint.localPosition);
-        Vector3 relativePos = lookatPoint.position - targetPoint.position;
+        targetPoint.position = ballPosition;
+        // Vector3 tpLocalPos = ConvertToRobotPos(targetPoint.position);
+        // Debug.Log("tp global pose: " + targetPoint.position + "tp local pos: "+ tpLocalPos+ targetPoint.localPosition);
+        // Vector3 relativePos = lookatPoint.position - targetPoint.position;
         // orientation = Quaternion.LookRotation(relativePos, Vector3.up);
-        Debug.Log("orientation: " + orientation.eulerAngles);
+        // Debug.Log("orientation: " + orientation.eulerAngles);
         orientation = Quaternion.Euler(0, orientation.eulerAngles.y - yAngle, 0);
-        
         Vector3 dir = orientation * new Vector3(0, 0, -cueLength);
         Transform root = targetPoint.parent;
+        // convert from global coordinate to local coordinate
         Vector3 cueOffset = root.InverseTransformVector(dir);
-        Debug.Log("Check orientation!");
-        Debug.Log(root.InverseTransformVector(relativePos.normalized));
-        Debug.Log(cueOffset.normalized);
+        // Debug.Log("Check orientation!");
+        // Debug.Log(root.InverseTransformVector(relativePos.normalized));
+        // Debug.Log(cueOffset.normalized);
         // Vector3 targetPose = ConvertToRobotPos(ballPosition) + cueOffset;
         // Debug.Log("ball: " +  ballPosition + ", target_pose: " + targetPose + " , orientation " + orientation);
-
         // Vector3 cueOffset = root.InverseTransformVector(relativePos.normalized * -cueLength);
-        
         Vector3 targetPose = targetPoint.localPosition + cueOffset;
-        
-
-
         request.pick_pose = new RosMessageTypes.Geometry.Pose{
             position = targetPose.To<FLU>(),
             orientation = orientation.To<FLU>()
         };
-
-
         request.place_pose = new RosMessageTypes.Geometry.Pose{
             position = new Vector3(-0.3f, 1.0f, -0.2f).To<FLU>(),
             orientation = pickOrientation.To<FLU>()
         };
-
         Debug.Log("request info: " + targetPose + " orientation: " + orientation.eulerAngles);
         // Debug.Log("relative : " + relativePos.normalized * cueLength);
         // Debug.Log("calculate pose: " + (targetPose + relativePos.normalized * cueLength));
