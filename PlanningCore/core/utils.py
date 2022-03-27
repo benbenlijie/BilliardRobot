@@ -2,7 +2,7 @@ from math import acos, atan, degrees, sqrt
 
 import numpy as np
 
-from PlanningCore.core import ball_radius, table_width, table_height
+from PlanningCore.core.constants import ball_radius, table_height, table_width
 
 
 def angle(v2, v1=(1, 0)):
@@ -67,3 +67,10 @@ def get_common_tangent_angles(cue_ball, target_ball):
 
 def coordinate_transformation(pos):
     return pos[0] + table_width/2, pos[1] + table_height/2
+
+
+def get_angle_range(angle1, angle2, angle_step):
+    mid_angle = (angle1 + angle2) / 2
+    left = np.arange(mid_angle, angle2, angle_step)
+    right = np.arange(mid_angle- angle_step, angle1, -angle_step)
+    return np.insert(left, np.arange(1, left.size), right)

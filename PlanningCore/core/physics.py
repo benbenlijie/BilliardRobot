@@ -164,6 +164,79 @@ def get_spin_time(rvw):
     return np.abs(w[2]) * 2/5*ball_radius/u_sp/g
 
 
+def get_ball_ball_collision_coefficients(state, rvw):
+    mu = u_s if state == State.sliding else u_r
+    if state == State.stationary or state == State.spinning:
+        ax, ay, bx, by = 0, 0, 0, 0
+    else:
+        phi = angle(rvw[1])
+        v = np.linalg.norm(rvw[1])
+
+        u = (np.array([1, 0, 0]) if state == State.rolling
+              else coordinate_rotation(unit_vector(get_rel_velocity(rvw)), -phi))
+
+        ax = -1/2*mu*g*(u[0]*np.cos(phi) - u[1]*np.sin(phi))
+        ay = -1/2*mu*g*(u[0]*np.sin(phi) + u[1]*np.cos(phi))
+        bx = v*np.cos(phi)
+        by = v*np.sin(phi)
+
+    return ax, ay, bx, by
+
+
+def get_ball_ball_collision_time(rvw1, rvw2, s1, s2):
+    """Get the time until collision between 2 balls"""
+    ax1, ay1, bx1, by1 = get_ball_ball_collision_coefficients(s1, rvw1)
+    ax2, ay2, bx2, by2 = get_ball_ball_collision_coefficients(s2, rvw2)
+
+    cx1, cy1 = rvw1[0, 0], rvw1[0, 1]
+    cx2, cy2 = rvw2[0, 0], rvw2[0, 1]
+
+    ax, ay = ax2-ax1, ay2-ay1
+    bx, by = bx2-bx1, by2-by1
+    cx, cy = cx2-cx1, cy2-cy1
+
+    a = ax**2 + ay**2
+    b = 2*ax*bx + 2*ay*by
+    c = bx**2 + 2*ax*cx + 2*ay*cy + by**2
+    d = 2*bx*cx + 2*by*cy
+    e = cx**2 + cy**2 - 4*ball_radius**2
+
+    roots = np.roots([a, b, c, d, e])
+
+    roots = roots[(abs(roots.imag) <= 1e-10) & (roots.real > 1e-10)].real
+
+    return roots.min() if len(roots) else np.inf
+
+
+def get_ball_cushion_collision_time(rvw, s, lx, ly, l0):
+    """Get the time until collision between ball and collision"""
+    if s == State.stationary or s == State.spinning:
+        return np.inf
+
+    mu = u_s if s == State.sliding else u_r
+    phi = angle(rvw[1])
+    v = np.linalg.norm(rvw[1])
+
+    u = (np.array([1, 0, 0] if s == State.rolling
+         else coordinate_rotation(unit_vector(get_rel_velocity(rvw)), -phi)))
+
+    ax = -1/2*mu*g*(u[0]*np.cos(phi) - u[1]*np.sin(phi))
+    ay = -1/2*mu*g*(u[0]*np.sin(phi) + u[1]*np.cos(phi))
+    bx, by = v*np.cos(phi), v*np.sin(phi)
+    cx, cy = rvw[0, 0], rvw[0, 1]
+
+    a = lx*ax + ly*ay
+    b = lx*bx + ly*by
+    c1 = l0 + lx*cx + ly*cy + ball_radius*np.sqrt(lx**2 + ly**2)
+    c2 = l0 + lx*cx + ly*cy - ball_radius*np.sqrt(lx**2 + ly**2)
+
+    roots = np.append(np.roots([a, b, c1]), np.roots([a, b, c2]))
+
+    roots = roots[(abs(roots.imag) <= 1e-10) & (roots.real > 1e-10)].real
+
+    return roots.min() if len(roots) else np.inf
+
+
 def evolve_ball_motion(pockets, state, rvw, t):
     if state == State.stationary or state == State.pocketed:
         return rvw, state

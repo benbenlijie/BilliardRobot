@@ -1,23 +1,35 @@
-from math import degrees, sqrt, acos
+from math import acos, degrees, sqrt
 
 import numpy as np
 
-from PlanningCore.core.utils import get_common_tangent_angles
-from PlanningCore.core.simulation import shot, simulate
+from PlanningCore.core.utils import get_angle_range, get_common_tangent_angles
+from PlanningCore.core.simulation import shot, simulate, simulate_event_based
 from PlanningCore.core.constants import State
 
 
-def search_optimal_strike(table, dt, dang, return_once_find=False):
+# TODO: sort the ball (which one is most likely pocket)
+def search_optimal_strike(
+        table,
+        v_cue=1,
+        dt=0.02,
+        dang=0.5,
+        return_once_find=False,
+        event=False
+):
     """Search optimal strike."""
+    simulate_func = simulate_event_based if event else simulate
+    simulate_args = ({'return_once_pocket': True}
+                     if event else
+                     {'dt': dt, 'no_ball_cushion': True, 'return_once_pocket': True})
     angles = []
     for target_ball in table.balls[1:]:
         angle1, angle2 = get_common_tangent_angles(
             cue_ball=table.balls[0],
             target_ball=target_ball,
         )
-        for ang in np.arange(angle1, angle2, dang):
-            shot(table, phi=ang, v_cue=1)
-            if simulate(table, dt=dt):
+        for ang in get_angle_range(angle1, angle2, dang):
+            shot(table, phi=ang, v_cue=v_cue)
+            if simulate_func(table, **simulate_args):
                 if table.balls[0].state == State.pocketed:
                     table.reset_balls()
                     continue

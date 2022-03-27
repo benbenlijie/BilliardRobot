@@ -1,9 +1,8 @@
-from math import cos, radians, sin
+import sys
 
 import pygame
 
-from PlanningCore.billiard import Table, Ball
-from PlanningCore.core import Force
+from PlanningCore.core import constants as c
 
 
 COLOR_MAP = {
@@ -20,76 +19,49 @@ COLOR_MAP = {
 }
 
 
-class Billiard(object):
-    def __init__(self, width=660, height=360, friction=0.005, margin=30, color_map=None, n_balls=10):
-        self.width = width
-        self.height = height
-        self.friction = friction
-        self.color_map = color_map
-        self.n_balls = n_balls
+def animate(pockets, logs, flip=False):
+    cloth_color = (202, 222, 235)
+    scale = 800 / max([c.table_width, c.table_height])
+    screen_width = scale * (c.table_height if flip else c.table_width)
+    screen_height = scale * (c.table_width if flip else c.table_height)
+    radius = c.ball_radius * scale
+    pocket_r = c.pocket_radius * scale
 
-        self.cue_ball = Ball(0, 'white', (width/2, height/2), is_cue=True)
-        self.table = Table(width, height, margin, friction, balls=[], pockets=[])
+    pygame.init()
+    screen = pygame.display.set_mode((screen_width, screen_height), pygame.HWSURFACE | pygame.DOUBLEBUF)
+    clock = pygame.time.Clock()
 
-        self.display = None
-        self.clock = None
+    def draw_table():
+        screen.fill(cloth_color)
 
-    def init_pygame(self):
-        pygame.init()
-        self.display = pygame.display.set_mode((self.width, self.height), pygame.HWSURFACE | pygame.DOUBLEBUF)
-        self.clock = pygame.time.Clock()
+    def draw_balls(balls):
+        for ball in balls:
+            rvw = ball['rvw']
+            x = scale * (rvw[0][0] if flip else rvw[0][1])
+            y = scale * (rvw[0][1] if flip else rvw[0][0])
+            pygame.draw.ellipse(
+                surface=screen,
+                color=COLOR_MAP[ball['color']] if ball['state'] != c.State.pocketed else COLOR_MAP['green'],
+                rect=(y - radius, x - radius, radius * 2, radius * 2),
+            )
 
-    def render(self):
-        self.display.fill(self.color_map['gray'])
-        pygame.draw.ellipse(
-            surface=self.display,
-            color=self.color_map['white'],
-            rect=(self.cue_ball.x-self.cue_ball.radius, self.cue_ball.y-self.cue_ball.radius, self.cue_ball.radius*2, self.cue_ball.radius*2)
-        )
-        pygame.display.update()
-        self.clock.tick(60)
+    def draw_pockets(pockets):
+        for pocket in pockets:
+            x = scale * (pocket.pos[0] if flip else pocket.pos[1])
+            y = scale * (pocket.pos[1] if flip else pocket.pos[0])
+            pygame.draw.ellipse(
+                surface=screen,
+                color=COLOR_MAP['black'],
+                rect=(y - pocket_r, x - pocket_r, pocket_r * 2, pocket_r * 2),
+            )
 
-    def hit(self, force):
-        self.cue_ball.apply_force(force)
-
-    def run(self):
-        self.init_pygame()
-        while True:
-            for event in pygame.event.get():
-                pass
-            move_ball(self.cue_ball)
-            self.render()
-
-
-def move_ball(ball, width=660, height=360, friction=0.005):
-    ball.velocity -= friction
-
-    if ball.velocity <= 0:
-        ball.velocity = 0
-    ball.x = ball.x + ball.velocity * cos(radians(ball.force_angle))
-    ball.y = ball.y + ball.velocity * sin(radians(ball.force_angle))
-
-    if ball.x > width - ball.radius:
-        ball.x = width - ball.radius
-        ball.force_angle = 180 - ball.force_angle
-    if ball.x < ball.radius:
-        ball.x = ball.radius
-        ball.force_angle = 180 - ball.force_angle
-    if ball.y > height - ball.radius:
-        ball.y = height - ball.radius
-        ball.force_angle = 360 - ball.force_angle
-    if ball.y < ball.radius:
-        ball.y = ball.radius
-        ball.force_angle = 360 - ball.force_angle
-
-
-if __name__ == '__main__':
-    from threading import Thread
-
-    billiard = Billiard(color_map=COLOR_MAP)
-    t = Thread(target=billiard.run)
-    t.start()
     while True:
-        m, d = input('Input magnitude and direction of force:').strip().split()
-        f = Force(float(m), float(d))
-        billiard.hit(f)
+        for log in logs:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+            draw_table()
+            draw_balls(log['balls'])
+            draw_pockets(pockets)
+            pygame.display.update()
+            clock.tick(60)

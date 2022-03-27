@@ -1,13 +1,18 @@
 import numpy as np
 
+from PlanningCore.core.constants import State
 from PlanningCore.core.physics import (
     ball_ball_collision,
     ball_cushion_collision,
     cue_strike,
     evolve_ball_motion,
+    get_ball_ball_collision_time,
+    get_ball_cushion_collision_time,
+    get_roll_time,
+    get_spin_time,
+    get_slide_time,
 )
 from PlanningCore.core.utils import get_rel_velocity
-from PlanningCore.core.constants import State
 
 
 def evolve(pockets, balls, dt):
@@ -20,6 +25,34 @@ def evolve(pockets, balls, dt):
         )
         ball.set_rvw(rvw)
         ball.set_state(state)
+
+
+def resolve(collision, table):
+    if collision['type'] == 'ball_ball':
+        ball_id1, ball_id2 = collision['agents']
+
+        rvw1 = table.balls[ball_id1].rvw
+        rvw2 = table.balls[ball_id2].rvw
+
+        rvw1, rvw2 = ball_ball_collision(rvw1, rvw2)
+        s1, s2 = State.sliding, State.sliding
+
+        table.balls[ball_id1].set_rvw(rvw1)
+        table.balls[ball_id1].set_state(s1)
+        table.balls[ball_id2].set_rvw(rvw2)
+        table.balls[ball_id2].set_state(s2)
+
+    elif collision['type'] == 'ball_cushion':
+        ball_id, cushion_id = collision['agents']
+
+        rvw = table.balls[ball_id].rvw
+        normal = table.cushions[cushion_id]['normal']
+
+        rvw = ball_cushion_collision(rvw, normal)
+        s = State.sliding
+
+        table.balls[ball_id].set_rvw(rvw)
+        table.balls[ball_id].set_state(s)
 
 
 def detect_collisions(table):
@@ -63,37 +96,119 @@ def detect_collisions(table):
     return collisions
 
 
-def resolve(collision, table):
-    if collision['type'] == 'ball_ball':
-        ball_id1, ball_id2 = collision['agents']
+def get_min_motion_event_time(balls):
+    t_min = np.inf
+    ball_id = None
+    motion_type = None
 
-        rvw1 = table.balls[ball_id1].rvw
-        rvw2 = table.balls[ball_id2].rvw
+    for i, ball in enumerate(balls):
+        if ball.state == State.rolling:
+            t = get_roll_time(ball.rvw)
+            tau_spin = get_spin_time(ball.rvw)
+            event_type = 'rolling_spinning' if tau_spin > t else 'rolling_stationary'
+        elif ball.state == State.sliding:
+            t = get_slide_time(ball.rvw)
+            event_type = 'sliding_rolling'
+        elif ball.state == State.spinning:
+            t = get_spin_time(ball.rvw)
+            event_type = 'spinning_stationary'
+        else:
+            continue
 
-        rvw1, rvw2 = ball_ball_collision(rvw1, rvw2)
-        s1, s2 = State.sliding, State.sliding
+        if t < t_min:
+            t_min = t
+            ball_id = i
+            motion_type = event_type
 
-        table.balls[ball_id1].set_rvw(rvw1)
-        table.balls[ball_id1].set_state(s1)
-        table.balls[ball_id2].set_rvw(rvw2)
-        table.balls[ball_id2].set_state(s2)
-
-    elif collision['type'] == 'ball_cushion':
-        ball_id, cushion_id = collision['agents']
-
-        rvw = table.balls[ball_id].rvw
-        normal = table.normal[cushion_id]
-
-        rvw = ball_cushion_collision(rvw, normal)
-        s = State.sliding
-
-        table.balls[ball_id].set_rvw(rvw)
-        table.balls[ball_id].set_state(s)
+    return t_min, (ball_id,), motion_type
 
 
-def simulate(table, dt=0.033, log=False):
+def get_min_ball_ball_event_time(balls):
+    t_min = np.inf
+    ball_ids = (None, None)
+
+    for i, ball1 in enumerate(balls):
+        for j, ball2 in enumerate(balls):
+            if i >= j:
+                continue
+            if ball1.state == State.pocketed or ball2.state == State.pocketed:
+                continue
+            if ball1.state == State.stationary and ball2.state == State.stationary:
+                continue
+
+            t = get_ball_ball_collision_time(
+                rvw1=ball1.rvw,
+                rvw2=ball2.rvw,
+                s1=ball1.state,
+                s2=ball2.state,
+            )
+
+            if t < t_min:
+                ball_ids = (i, j)
+                t_min = t
+
+    return t_min, ball_ids
+
+
+def get_min_ball_cushion_event_time(balls, cushions):
+    """Returns minimum time until next ball-rail collision"""
+
+    t_min = np.inf
+    agents = (None, None)
+
+    for ball_id, ball in enumerate(balls):
+        if ball.state == State.stationary or ball.state == State.pocketed:
+            continue
+
+        for cushion_id, cushion in cushions.items():
+            t = get_ball_cushion_collision_time(
+                rvw=ball.rvw,
+                s=ball.state,
+                lx=cushion['lx'],
+                ly=cushion['ly'],
+                l0=cushion['l0'],
+            )
+
+            if t < t_min:
+                agents = (ball_id, cushion_id)
+                t_min = t
+
+    return t_min, agents
+
+
+def get_next_event(table):
+    t_min = np.inf
+    agents = tuple()
+    event_type = None
+
+    t, ids, e = get_min_motion_event_time(table.balls)
+    if t < t_min:
+        t_min = t
+        event_type = e
+        agents = ids
+
+    t, ids = get_min_ball_ball_event_time(table.balls)
+    if t < t_min:
+        t_min = t
+        event_type = 'ball_ball'
+        agents = ids
+
+    t, ids = get_min_ball_cushion_event_time(table.balls, table.cushions)
+    if t < t_min:
+        t_min = t
+        event_type = 'ball_cushion'
+        agents = ids
+    return Event(event_type=event_type, event_time=t_min, agents=agents)
+
+
+def simulate(table, dt=0.033, log=False, no_ball_cushion=False, return_once_pocket=False):
     while True:
-        if np.all([(ball.state == State.stationary or ball.state == State.pocketed) for ball in table.balls]):
+        if return_once_pocket:
+            for ball in table.balls:
+                if ball.state == State.pocketed:
+                    return True
+        if np.all([(ball.state == State.stationary or ball.state == State.pocketed)
+                   for ball in table.balls]):
             break
         evolve(table.pockets, table.balls, dt)
         if log:
@@ -101,11 +216,29 @@ def simulate(table, dt=0.033, log=False):
 
         collisions = detect_collisions(table)
         for collision in collisions:
-            if collision['type'] == 'ball_cushion':
+            if no_ball_cushion and collision['type'] == 'ball_cushion':
                 return False
             resolve(collision, table)
             if log:
                 table.snapshot(dt)
+    return True
+
+
+def simulate_event_based(table, log=False, return_once_pocket=False):
+    event = Event()
+    while event.event_time < np.inf:
+        event = get_next_event(table)
+        if return_once_pocket:
+            for ball in table.balls:
+                if ball.state == State.pocketed:
+                    return True
+        if np.all([(ball.state == State.stationary or ball.state == State.pocketed)
+                   for ball in table.balls]):
+            break
+        evolve(table.pockets, table.balls, dt=event.event_time)
+        resolve(event.as_dict(), table)
+        if log:
+            table.snapshot(event.event_time)
     return True
 
 
@@ -117,3 +250,18 @@ def shot(table, v_cue, phi, theta=0, a=0, b=0):
     state = State.rolling if np.abs(np.sum(get_rel_velocity(rvw))) <= 1e-10 else State.sliding
     table.balls[0].set_rvw(rvw)
     table.balls[0].set_state(state)
+
+
+class Event(object):
+
+    def __init__(self, event_type=None, event_time=0, agents=None):
+        self.event_type = event_type
+        self.event_time = event_time
+        self.agents = agents
+
+    def as_dict(self):
+        return {
+            'type': self.event_type,
+            'time': self.event_time,
+            'agents': self.agents,
+        }
