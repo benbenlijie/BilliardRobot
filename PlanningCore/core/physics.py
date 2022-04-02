@@ -1,4 +1,4 @@
-from math import atan, cos, degrees, radians, sin, sqrt
+from math import radians
 
 import numpy as np
 
@@ -60,7 +60,11 @@ def cue_strike(cue_velocity, phi, theta=0, a=0, b=0):
     force = numerator/denominator
 
     v_ball = -force / ball_mass * np.array([0, np.cos(theta), 0])
-    w_ball = force/ball_moment_inertia * np.array([-c*np.sin(theta) + b*np.cos(theta), a*np.sin(theta), -a*np.cos(theta)])
+    w_ball = force/ball_moment_inertia * np.array([
+        -c * np.sin(theta) + b * np.cos(theta),
+        a * np.sin(theta),
+        -a * np.cos(theta)
+    ])
 
     # Rotate to table reference.
     rot_angle = phi + np.pi/2
@@ -112,7 +116,7 @@ def ball_cushion_collision(rvw, normal):
     # Eqs 14
     sx = rvw_R[1, 0] * np.sin(theta_a) - rvw_R[1, 2] * np.cos(theta_a) + ball_radius * rvw_R[2, 1]
     sy = -rvw_R[1, 1] - ball_radius * rvw_R[2, 2] * np.cos(theta_a) + ball_radius * rvw_R[2, 0] * np.sin(theta_a)
-    c = rvw_R[1, 0]*np.cos(theta_a) # 2D assumption
+    c = rvw_R[1, 0]*np.cos(theta_a)  # 2D assumption
 
     # Eqs 16
     I = 2 / 5 * ball_mass * ball_radius ** 2
@@ -137,7 +141,7 @@ def ball_cushion_collision(rvw, normal):
     # Update velocity.
     rvw_R[1, 0] += PX / ball_mass
     rvw_R[1, 1] += PY / ball_mass
-    #rvw_R[1,2] += PZ/m
+    # rvw_R[1,2] += PZ/m
 
     # Update angular velocity
     rvw_R[2, 0] += -ball_radius / I * PY * np.sin(theta_a)
@@ -172,8 +176,9 @@ def get_ball_ball_collision_coefficients(state, rvw):
         phi = angle(rvw[1])
         v = np.linalg.norm(rvw[1])
 
-        u = (np.array([1, 0, 0]) if state == State.rolling
-              else coordinate_rotation(unit_vector(get_rel_velocity(rvw)), -phi))
+        u = (np.array([1, 0, 0])
+             if state == State.rolling
+             else coordinate_rotation(unit_vector(get_rel_velocity(rvw)), -phi))
 
         ax = -1/2*mu*g*(u[0]*np.cos(phi) - u[1]*np.sin(phi))
         ay = -1/2*mu*g*(u[0]*np.sin(phi) + u[1]*np.cos(phi))

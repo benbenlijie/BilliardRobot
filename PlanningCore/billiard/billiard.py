@@ -108,9 +108,11 @@ class Table(object):
         print(f'{self} initialized')
 
     def __repr__(self):
+        balls_str = '\n\t'.join(str(ball) for ball in self.balls)
+        pockets_str = '\n\t'.join(str(pocket) for pocket in self.pockets)
         return (
-            f'Table(width={self.width}, height={self.height} '
-            f'balls={self.balls}, pockets={self.pockets})'
+            f'Table(width={self.width}, height={self.height}\n'
+            f'balls=\n\t{balls_str}\npockets=\n\t{pockets_str}\n)'
         )
 
     def reset_balls(self):

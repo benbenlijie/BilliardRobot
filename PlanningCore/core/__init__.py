@@ -44,6 +44,6 @@ if __name__ == '__main__':
         a=0,
         b=0,
     )
-    # simulate(t, dt=0.02, log=True)
-    simulate_event_based(t, log=True)
-    animate(t.pockets, t.log, False)
+    simulate(t, dt=0.02, log=True)
+    # simulate_event_based(t, log=True)
+    animate(t, False)

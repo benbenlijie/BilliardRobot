@@ -19,7 +19,7 @@ COLOR_MAP = {
 }
 
 
-def animate(pockets, logs, flip=False):
+def animate(table, flip=False):
     cloth_color = (202, 222, 235)
     scale = 800 / max([c.table_width, c.table_height])
     screen_width = scale * (c.table_height if flip else c.table_width)
@@ -56,12 +56,12 @@ def animate(pockets, logs, flip=False):
             )
 
     while True:
-        for log in logs:
+        for log in table.log:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
             draw_table()
             draw_balls(log['balls'])
-            draw_pockets(pockets)
+            draw_pockets(table.pockets)
             pygame.display.update()
             clock.tick(60)
