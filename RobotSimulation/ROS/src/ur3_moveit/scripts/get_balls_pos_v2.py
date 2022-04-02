@@ -33,8 +33,7 @@ class PosEstimation():
         img = cv2.imread(self.image_file_name)
         if debug:
             print(img.shape)
-        circles = cv2.HoughCircles(img[:, :, 1], cv2.HOUGH_GRADIENT, 1, 20,
-                              param1=200, param2=20, minRadius=5, maxRadius=30)
+        circles = cv2.HoughCircles(img[:, :, 1], cv2.HOUGH_GRADIENT, 1, 25, param1=200, param2=15, minRadius=10, maxRadius=30)
         # circles = np.uint16(np.around(circles))
         if debug:
             for i in circles[0,:]:
