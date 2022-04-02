@@ -19,6 +19,8 @@ COPY ./ROS/src/robotiq $ROS_WORKSPACE/src/robotiq
 COPY ./ROS/src/ros_tcp_endpoint $ROS_WORKSPACE/src/ros_tcp_endpoint
 COPY ./ROS/src/universal_robot $ROS_WORKSPACE/src/universal_robot
 COPY ./ROS/src/ur3_moveit $ROS_WORKSPACE/src/ur3_moveit
+COPY ./PlanningCore/ $ROS_WORKSPACE/src/ur3_moveit/scripts/PlanningCore
+
 
 COPY ./docker/set-up-workspace /setup.sh
 COPY docker/tutorial /
@@ -28,6 +30,6 @@ RUN /bin/bash -c "find $ROS_WORKSPACE -type f -print0 | xargs -0 dos2unix"
 RUN dos2unix /tutorial && dos2unix /setup.sh && chmod +x /setup.sh && /setup.sh && rm /setup.sh
 
 # pre-load model
-RUN python3 -c 'import src.ur3_moveit.src.ur3_moveit.setup_and_run_model as model; model.preload()'
+# RUN python3 -c 'import src.ur3_moveit.src.ur3_moveit.setup_and_run_model as model; model.preload()'
 
 ENTRYPOINT ["/tutorial"]
