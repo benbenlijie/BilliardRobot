@@ -10,9 +10,9 @@ import os
 import math
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from get_balls_pos import PosEstimation
-
-
+# from get_balls_pos import PosEstimation
+from get_balls_pos_v2 import PosEstimation
+from PlanningCore import get_strike_angles
 from ur3_moveit.srv import PoseEstimationService, PoseEstimationServiceResponse
 from PIL import Image, ImageOps
 from geometry_msgs.msg import Point, Quaternion, Pose
@@ -67,20 +67,41 @@ def _run_model(image_path, req):
     # print("other balls")
     # print(req.balls_pose)
 
-    position = [0.1, 0.1, 0.1]
-    quaternion = [0.3, 0.3, 0.3, 0.3]
 
-    w = 960
-    h = 540
+
     debug = False
     estimator = PosEstimation(image_path)
-    cue_ball_center = estimator.getCueBallPosition(w, h, debug)
-    balls_center = estimator.getBallsPosition(w, h, debug, cue_x = cue_ball_center[0], cue_y = cue_ball_center[1])
+    cue_ball_center, balls_center = estimator.getAllBalls(debug)
+    # balls_center = estimator.getBallsPosition(w, h, debug, cue_x = cue_ball_center[0], cue_y = cue_ball_center[1])
     print('cue ball center: =========>')
-    print(cue_ball_center)
+    print(cue_ball_center[0])
     print('balls center: =========>')
     print(balls_center)
+
+
     # TODO: planning algorithm
+    # table = init_table(cueballpos=cue_ball_center[0], ballposlist=balls_center)
+    # angles = search_optimal_strike(table=table, dt=0.02, dang=0.5)
+    import time
+    t1 = time.time()
+    angles = get_strike_angles(
+        cue_ball_pos=cue_ball_center[0],
+        balls_pos=balls_center,
+        v_cue=1,
+        dang=1,
+        return_once_find=True,
+        event_based=True,
+        direct_strike=False,
+    )
+    t2 = time.time()
+    print('time: =========>')
+    print(t2 - t1)
+    print('angles: =========>')
+    # angles = [(0, 78.13010235415602, (-0.3352243920078475, 2.5798335100894003))]
+    print(angles)
+
+    position = [cue_ball_center[0][0], 0, -cue_ball_center[0][1]]
+    quaternion = [angles[0][1], 0, 0, 0]
     
     return position, quaternion
 
