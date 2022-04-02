@@ -339,6 +339,7 @@ public class TrajectoryPlanner : MonoBehaviour
         // Debug.Log("ball: " +  ballPosition + ", target_pose: " + targetPose + " , orientation " + orientation);
         // Vector3 cueOffset = root.InverseTransformVector(relativePos.normalized * -cueLength);
         Vector3 targetPose = targetPoint.localPosition + cueOffset;
+
         request.pick_pose = new RosMessageTypes.Geometry.Pose{
             position = targetPose.To<FLU>(),
             orientation = orientation.To<FLU>()
@@ -556,9 +557,10 @@ public class TrajectoryPlanner : MonoBehaviour
     // public GameObject ball8;
     public Camera topCamera;
 
+
     public string rosSenseServiceName = "pose_estimation_srv";
 
-    public void PoseEstimation()
+    public void PoseEstimation(bool is_direct)
     {
         Debug.Log("Capturing screenshot...");
 
@@ -572,7 +574,7 @@ public class TrajectoryPlanner : MonoBehaviour
 
         // Capture the screenshot and pass it to the pose estimation service
         byte[] rawImageData = CaptureScreenshot();
-        InvokePoseEstimationService(rawImageData);
+        InvokePoseEstimationService(rawImageData, is_direct);
     }
 
     private void SaveTexture2File(Texture2D texture)
@@ -605,7 +607,7 @@ public class TrajectoryPlanner : MonoBehaviour
         return imageBytes;  
     }
 
-    private void InvokePoseEstimationService(byte[] imageData)
+    private void InvokePoseEstimationService(byte[] imageData, bool is_direct)
     {
         uint imageHeight = (uint)renderTexture.height;
         uint imageWidth = (uint)renderTexture.width;
@@ -614,41 +616,24 @@ public class TrajectoryPlanner : MonoBehaviour
         PoseEstimationServiceRequest poseServiceRequest = new PoseEstimationServiceRequest();
         poseServiceRequest.image = rosImage;
 
-        // poseServiceRequest.cue_ball_pose = new RosMessageTypes.Geometry.Pose
-        // {   // 这个可能整个都要调整的
-        //     position = cueBall.transform.position.To<FLU>(),
-        //     // TODO: 这个 orientation要调整
-        //     orientation = Quaternion.Euler(90, cueBall.transform.eulerAngles.y, 0).To<FLU>()
-        // };
-
-        
-        // RosMessageTypes.Geometry.Pose ball1_pose = new RosMessageTypes.Geometry.Pose
-        // {
-        //     position = ball1.transform.position.To<FLU>(),
-        //     // TODO: 这个 orientation要调整
-        //     orientation = Quaternion.Euler(90, ball1.transform.eulerAngles.y, 0).To<FLU>()
-        // };
-
-        // RosMessageTypes.Geometry.Pose[] balls_pose_list = {ball1_pose};
-
-        // poseServiceRequest.balls_pose = balls_pose_list;
-
+        poseServiceRequest.is_direct = is_direct;
         ros.SendServiceMessage<PoseEstimationServiceResponse>(rosSenseServiceName, poseServiceRequest, PoseEstimationCallback);
     }
 
     void PoseEstimationCallback(PoseEstimationServiceResponse response)  
     {
-        if (response != null)
+        Debug.Log("#=================");
+        Debug.Log(response);
+        if (response.estimated_pose != null)
         {   
             Debug.Log("#=================");
             Debug.Log(response.estimated_pose.position);
-            Debug.Log(response.estimated_pose.position.From<RUF>());
-            Debug.Log(response.estimated_pose.orientation.From<RUF>());
+            Debug.Log(response.estimated_pose.orientation);
             // The position output by the model is the position of the cube relative to the camera so we need to extract its global position 
             var estimatedPosition = response.estimated_pose.position.From<RUF>();
             var estimatedRotation = response.estimated_pose.orientation.From<RUF>();
 
-            PublishBilliardJoints(estimatedPosition, estimatedRotation.x);
+            // PublishBilliardJoints(estimatedPosition, estimatedRotation.x);
 
             // EstimatedPos.text = estimatedPosition.ToString();
             // EstimatedRot.text = estimatedRotation.eulerAngles.ToString();
