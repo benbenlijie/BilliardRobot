@@ -14,19 +14,22 @@ namespace RosMessageTypes.Ur3Moveit
         public Sensor.Image image;
         public Geometry.Pose cue_ball_pose;
         public Geometry.Pose[] balls_pose;
+        public bool is_direct;
 
         public PoseEstimationServiceRequest()
         {
             this.image = new Sensor.Image();
             this.cue_ball_pose = new Geometry.Pose();
             this.balls_pose = new Geometry.Pose[0];
+            this.is_direct = false;
         }
 
-        public PoseEstimationServiceRequest(Sensor.Image image, Geometry.Pose cue_ball_pose, Geometry.Pose[] balls_pose)
+        public PoseEstimationServiceRequest(Sensor.Image image, Geometry.Pose cue_ball_pose, Geometry.Pose[] balls_pose, bool is_direct)
         {
             this.image = image;
             this.cue_ball_pose = cue_ball_pose;
             this.balls_pose = balls_pose;
+            this.is_direct = is_direct;
         }
         public override List<byte[]> SerializationStatements()
         {
@@ -37,6 +40,7 @@ namespace RosMessageTypes.Ur3Moveit
             listOfSerializations.Add(BitConverter.GetBytes(balls_pose.Length));
             foreach(var entry in balls_pose)
                 listOfSerializations.Add(entry.Serialize());
+            listOfSerializations.Add(BitConverter.GetBytes(this.is_direct));
 
             return listOfSerializations;
         }
@@ -54,6 +58,8 @@ namespace RosMessageTypes.Ur3Moveit
                 this.balls_pose[i] = new Geometry.Pose();
                 offset = this.balls_pose[i].Deserialize(data, offset);
             }
+            this.is_direct = BitConverter.ToBoolean(data, offset);
+            offset += 1;
 
             return offset;
         }
@@ -63,7 +69,8 @@ namespace RosMessageTypes.Ur3Moveit
             return "PoseEstimationServiceRequest: " +
             "\nimage: " + image.ToString() +
             "\ncue_ball_pose: " + cue_ball_pose.ToString() +
-            "\nballs_pose: " + System.String.Join(", ", balls_pose.ToList());
+            "\nballs_pose: " + System.String.Join(", ", balls_pose.ToList()) +
+            "\nis_direct: " + is_direct.ToString();
         }
     }
 }

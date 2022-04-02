@@ -91,7 +91,7 @@ def _run_model(image_path, req):
         dang=1,
         return_once_find=True,
         event_based=True,
-        direct_strike=False,
+        direct_strike=req.is_direct,
     )
     t2 = time.time()
     print('time: =========>')
@@ -99,9 +99,15 @@ def _run_model(image_path, req):
     print('angles: =========>')
     # angles = [(0, 78.13010235415602, (-0.3352243920078475, 2.5798335100894003))]
     print(angles)
+    print(req.is_direct)
 
-    position = [cue_ball_center[0][0], 0, -cue_ball_center[0][1]]
+    if req.is_direct:
+        position = [angles[0][2][0], 0, -angles[0][2][1]]
+    else:
+        position = [cue_ball_center[0][0], 0, -cue_ball_center[0][1]]
+    
     quaternion = [angles[0][1], 0, 0, 0]
+
     
     return position, quaternion
 
