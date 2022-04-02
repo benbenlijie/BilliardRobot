@@ -69,7 +69,7 @@ class TestPhysics(unittest.TestCase):
 
     def test_evolve_ball_motion(self):
         for rvw in self.test_rvw:
-            for state in c.State.all:
+            for state in c.State.all.keys():
                 for t in (0.1, 0.2, 0.3, 0.4, 0.5):
                     rvw_ref, state_ref = ref_physics.evolve_ball_motion(
                         state=state,
@@ -83,6 +83,7 @@ class TestPhysics(unittest.TestCase):
                         t=t,
                     )
                     rvw_my, state_my = my_physics.evolve_ball_motion(
+                        pockets=[],
                         state=state,
                         rvw=rvw,
                         t=t,
