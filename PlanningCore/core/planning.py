@@ -34,9 +34,9 @@ def search_optimal_strike(
                     continue
                 for ball in table.balls[1:]:
                     if ball.state == State.pocketed:
+                        table.reset_balls()
                         angles.append((0, ang, coordinate_transformation_inverse(table.balls[0].pos)))
                         if return_once_find:
-                            table.reset_balls()
                             return angles
             table.reset_balls()
     if not angles:
@@ -68,12 +68,12 @@ def search_optimal_direct_strike(
     for i, ball in enumerate(table.balls[1:], 1):
         angles = find_pocket_angles(i, table)
         for angle in angles:
-            shot(table, phi=angle, v_cue=v_cue)
+            shot(table, phi=angle, v_cue=v_cue, ball_index=i)
             if simulate_func(table, **simulate_args):
                 if table.balls[i].state == State.pocketed:
+                    table.reset_balls()
                     results.append((i, angle, coordinate_transformation_inverse(ball.pos)))
                     if return_once_find:
-                        table.reset_balls()
                         return results
             table.reset_balls()
 
