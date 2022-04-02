@@ -314,21 +314,34 @@ public class TrajectoryPlanner : MonoBehaviour
         return localPos;
     }
 
+    public void PublishBilliardJointsTest()
+    {
+        var targetPos = targetPoint.position;
+        // Debug.Log("rotations: " + targetPoint.localRotation.eulerAngles);
+        float angle = targetPoint.localRotation.eulerAngles.y;
+        PublishBilliardJoints(targetPos, angle);
+    }
+
     public void PublishBilliardJoints(Vector3 ballPosition, float angle=0)
     //public void PublishBilliardJoints()
     {
+        ballPosition.y = targetPoint.position.y;
+        Debug.Log("target pos: " + ballPosition + ", angle: " + angle);
         ShootButton.interactable = false;
         MoverServiceRequest request = new MoverServiceRequest();
         request.joints_input = CurrentJointConfig();
         var orientation = Quaternion.Euler(0, angle, 0);
         targetPoint.position = ballPosition;
+        targetPoint.localRotation = orientation;
+        
         // Vector3 tpLocalPos = ConvertToRobotPos(targetPoint.position);
         // Debug.Log("tp global pose: " + targetPoint.position + "tp local pos: "+ tpLocalPos+ targetPoint.localPosition);
         // Vector3 relativePos = lookatPoint.position - targetPoint.position;
         // orientation = Quaternion.LookRotation(relativePos, Vector3.up);
         // Debug.Log("orientation: " + orientation.eulerAngles);
-        orientation = Quaternion.Euler(0, orientation.eulerAngles.y - yAngle, 0);
-        Vector3 dir = orientation * new Vector3(0, 0, -cueLength);
+        // orientation = Quaternion.Euler(0, orientation.eulerAngles.y - yAngle, 0);
+
+        Vector3 dir = Quaternion.Euler(0, orientation.eulerAngles.y - yAngle, 0) * new Vector3(0, 0, cueLength);
         Transform root = targetPoint.parent;
         // convert from global coordinate to local coordinate
         Vector3 cueOffset = root.InverseTransformVector(dir);
@@ -339,6 +352,9 @@ public class TrajectoryPlanner : MonoBehaviour
         // Debug.Log("ball: " +  ballPosition + ", target_pose: " + targetPose + " , orientation " + orientation);
         // Vector3 cueOffset = root.InverseTransformVector(relativePos.normalized * -cueLength);
         Vector3 targetPose = targetPoint.localPosition + cueOffset;
+
+        // targetPose = new Vector3(-0.3f, 0.8f, -0.2f);
+
         request.pick_pose = new RosMessageTypes.Geometry.Pose{
             position = targetPose.To<FLU>(),
             orientation = orientation.To<FLU>()

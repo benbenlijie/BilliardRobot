@@ -1874,7 +1874,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.43
+      value: 0.468
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1882,7 +1882,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.28
+      value: 1.309
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3780,12 +3780,6 @@ MonoBehaviour:
   shootMaxDistance: 0.3
   cueShootWait: 1
   scenario: {fileID: 0}
-  cueBall: {fileID: 0}
-  ball1: {fileID: 0}
-  ball2: {fileID: 0}
-  ball3: {fileID: 0}
-  ball4: {fileID: 0}
-  ball5: {fileID: 0}
   topCamera: {fileID: 1462377748}
   rosSenseServiceName: pose_estimation_srv
 --- !u!4 &443603554
@@ -4789,7 +4783,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.199
+      value: 0.241
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.y
@@ -4797,7 +4791,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.42
+      value: 1.473
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalRotation.w
@@ -7564,7 +7558,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 875387031}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -0.759, z: 2}
+  m_LocalPosition: {x: 0, y: -0.773, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1123739049}
@@ -8368,14 +8362,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 984023184}
-  m_LocalRotation: {x: 0, y: -0.3488174, z: 0, w: 0.9371907}
-  m_LocalPosition: {x: -0.917, y: 0.938, z: 0.826}
+  m_LocalRotation: {x: 0, y: -0.92253816, z: 0, w: 0.38590598}
+  m_LocalPosition: {x: -0.462, y: 0.938, z: -0.205}
   m_LocalScale: {x: 0.04999999, y: 0.05, z: 0.04999999}
   m_Children:
   - {fileID: 1444424187}
   m_Father: {fileID: 1123739049}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: -40.83, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -134.6, z: 0}
 --- !u!1 &1010587427
 GameObject:
   m_ObjectHideFlags: 0
@@ -11363,7 +11357,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 443603553}
         m_TargetAssemblyTypeName: TrajectoryPlanner, Assembly-CSharp
-        m_MethodName: PublishBilliardJoints
+        m_MethodName: PublishBilliardJointsTest
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -15939,7 +15933,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.409
+      value: 0.451
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.y
@@ -15947,7 +15941,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.459
+      value: 1.491
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: cdac80e1dd15a450f93408e7aa5be2f7, type: 3}
       propertyPath: m_LocalRotation.w
