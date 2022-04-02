@@ -9,17 +9,17 @@ from PlanningCore.core.constants import State
 
 # TODO: sort the ball (which one is most likely pocket)
 def search_optimal_strike(
-        table,
-        v_cue=1,
-        dt=0.02,
-        dang=0.5,
-        return_once_find=False,
-        event=False
+    table,
+    v_cue=1,
+    dt=0.02,
+    dang=0.5,
+    return_once_find=False,
+    event_based=False
 ):
     """Search optimal strike."""
-    simulate_func = simulate_event_based if event else simulate
+    simulate_func = simulate_event_based if event_based else simulate
     simulate_args = ({'return_once_pocket': True}
-                     if event else
+                     if event_based else
                      {'dt': dt, 'no_ball_cushion': True, 'return_once_pocket': True})
     angles = []
     for target_ball in table.balls[1:]:

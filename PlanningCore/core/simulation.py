@@ -1,3 +1,5 @@
+from itertools import combinations
+
 import numpy as np
 
 from PlanningCore.core.constants import State
@@ -127,25 +129,23 @@ def get_min_ball_ball_event_time(balls):
     t_min = np.inf
     ball_ids = (None, None)
 
-    for i, ball1 in enumerate(balls):
-        for j, ball2 in enumerate(balls):
-            if i >= j:
-                continue
-            if ball1.state == State.pocketed or ball2.state == State.pocketed:
-                continue
-            if ball1.state == State.stationary and ball2.state == State.stationary:
-                continue
+    for (i, ball1), (j, ball2) in combinations(enumerate(balls), 2):
+        if ball1.state == State.pocketed or ball2.state == State.pocketed:
+            continue
 
-            t = get_ball_ball_collision_time(
-                rvw1=ball1.rvw,
-                rvw2=ball2.rvw,
-                s1=ball1.state,
-                s2=ball2.state,
-            )
+        if ball1.state == State.stationary and ball2.state == State.stationary:
+            continue
 
-            if t < t_min:
-                ball_ids = (i, j)
-                t_min = t
+        t = get_ball_ball_collision_time(
+            rvw1=ball1.rvw,
+            rvw2=ball2.rvw,
+            s1=ball1.state,
+            s2=ball2.state,
+        )
+
+        if t < t_min:
+            ball_ids = (i, j)
+            t_min = t
 
     return t_min, ball_ids
 
