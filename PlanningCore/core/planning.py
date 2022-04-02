@@ -7,7 +7,6 @@ from PlanningCore.core.simulation import shot, simulate, simulate_event_based
 from PlanningCore.core.constants import State
 
 
-# TODO: sort the ball (which one is most likely pocket)
 def search_optimal_strike(
     table,
     v_cue=1,
