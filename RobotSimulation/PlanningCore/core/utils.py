@@ -76,18 +76,8 @@ def coordinate_transformation_inverse(pos):
 def get_angle_range(angle1, angle2, angle_step):
     mid_angle = (angle1 + angle2) / 2
     right = np.arange(mid_angle, angle2, angle_step)
-    left = np.arange(mid_angle- angle_step, angle1, -angle_step)
+    left = np.arange(mid_angle-angle_step, angle1, -angle_step)
     return np.insert(right, np.arange(1, left.size+1), left)
-
-
-def get_line_formula(angle, point):
-    if angle == 90:
-        return lambda x: np.inf
-    if angle == 270:
-        return lambda x: 0
-    k = tan(radians(angle))
-    b = point[1] - k * point[0]
-    return lambda x: k*x + b
 
 
 def get_line_formula(angle, point):
