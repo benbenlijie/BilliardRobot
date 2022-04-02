@@ -326,7 +326,7 @@ public class TrajectoryPlanner : MonoBehaviour
     //public void PublishBilliardJoints()
     {
         ballPosition.y = targetPoint.position.y;
-        Debug.Log("target pos: " + ballPosition + ", angle: " + angle);
+        Debug.Log("target pos: " + ballPosition + ", angle: " + angle + "cueLength: " + cueLength);
         ShootButton.interactable = false;
         MoverServiceRequest request = new MoverServiceRequest();
         request.joints_input = CurrentJointConfig();

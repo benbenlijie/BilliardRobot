@@ -24,7 +24,8 @@ public class CueStick : MonoBehaviour
         {
             var rigid = other.GetComponent<Rigidbody>();
             var force = transform.rotation * new Vector3(0, 0, forceAmount);
-            rigid.AddForce(force, ForceMode.Impulse);
+            // rigid.AddForce(force, ForceMode.Impulse);
+            rigid.velocity = force;
             hitObject = true;
         }
     }
