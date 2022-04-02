@@ -88,13 +88,3 @@ def get_line_formula(angle, point):
     k = tan(radians(angle))
     b = point[1] - k * point[0]
     return lambda x: k*x + b
-
-
-def get_line_formula(angle, point):
-    if angle == 90:
-        return lambda x: np.inf
-    if angle == 270:
-        return lambda x: 0
-    k = tan(radians(angle))
-    b = point[1] - k * point[0]
-    return lambda x: k*x + b
