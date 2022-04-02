@@ -45,7 +45,8 @@ class Ball(object):
         self.state = State.stationary
 
     def __repr__(self):
-        return f'Ball(no={self.no}, color={self.color}, pos={self.pos}, cue={self.is_cue})'
+        return (f'Ball(no={self.no}, pos=(x: {self.pos[0]:.2f}, y: {self.pos[1]:.2f}), '
+                f'state={State.all[self.state]}{", cue_ball" if self.is_cue else ""})')
 
     def set_state(self, state):
         self.state = state
@@ -78,7 +79,7 @@ class Pocket(object):
         self.balls = []
 
     def __repr__(self):
-        return f'Pocket(no={self.no}, balls={self.balls})'
+        return f'Pocket(no={self.no}, pos=(x: {self.pos[0]:.2f}, y: {self.pos[1]:.2f}))'
 
 
 class Table(object):
@@ -173,8 +174,10 @@ class Table(object):
                 return True
             else:
                 return False
-        elif ((270 < angle1 < 360 and 270 < angle2 < 360)
-              or (0 < angle1 < 90 and 0 < angle2 < 90)):
+        elif (
+            (270 < angle1 < 360 and 270 < angle2 < 360)
+            or (0 < angle1 < 90 and 0 < angle2 < 90)
+        ):
             if y1 <= y <= y2:
                 return True
             else:

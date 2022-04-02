@@ -1,6 +1,6 @@
 from PlanningCore.core import constants
 from PlanningCore.core.constants import State
-from PlanningCore.core.planning import search_optimal_strike
+from PlanningCore.core.planning import search_optimal_direct_strike, search_optimal_strike
 from PlanningCore.core.utils import coordinate_transformation, get_common_tangent_angles, get_line_formula
 
 
@@ -25,13 +25,21 @@ if __name__ == '__main__':
         return_once_find=True,
         event_based=True,
     )
+    # angles = search_optimal_direct_strike(
+    #     table=t,
+    #     v_cue=1,
+    #     dt=0.02,
+    #     return_once_find=True,
+    #     event_based=True,
+    # )
     t2 = perf_counter()
     print(t2-t1)
     print(angles)
     shot(
         table=t,
         v_cue=1,
-        phi=angles[-1][1],
+        phi=angles[0][1],
+        ball_index=angles[0][0],
         theta=0,
         a=0,
         b=0,

@@ -48,4 +48,10 @@ class State(object):
     sliding = 2
     rolling = 3
     pocketed = 4
-    all = [stationary, spinning, sliding, rolling, pocketed]
+    all = {
+        stationary: 'stationary',
+        spinning: 'spinning',
+        sliding: 'sliding',
+        rolling: 'rolling',
+        pocketed: 'pocketed',
+    }

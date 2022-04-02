@@ -242,14 +242,14 @@ def simulate_event_based(table, log=False, return_once_pocket=False):
     return True
 
 
-def shot(table, v_cue, phi, theta=0, a=0, b=0):
+def shot(table, v_cue, phi, ball_index=0, theta=0, a=0, b=0):
     v, w = cue_strike(v_cue, phi, theta, a, b)
-    rvw = table.balls[0].rvw
+    rvw = table.balls[ball_index].rvw
     rvw[1] = v
     rvw[2] = w
     state = State.rolling if np.abs(np.sum(get_rel_velocity(rvw))) <= 1e-10 else State.sliding
-    table.balls[0].set_rvw(rvw)
-    table.balls[0].set_state(state)
+    table.balls[ball_index].set_rvw(rvw)
+    table.balls[ball_index].set_state(state)
 
 
 class Event(object):
