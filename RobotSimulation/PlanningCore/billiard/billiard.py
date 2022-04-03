@@ -167,25 +167,13 @@ class Table(object):
         y2 = line2(point[0])
         y = point[1]
         if 180 < angle1 < 270 < angle2 < 360:
-            if y <= y1 and y <= y2:
-                return True
-            else:
-                return False
+            return y <= y1 and y <= y2
         elif 0 < angle1 < 90 < angle2 < 180:
-            if y >= y1 and y >= y2:
-                return True
-            else:
-                return False
+            return y >= y1 and y >= y2
         elif (
             (270 < angle1 < 360 and 270 < angle2 < 360)
             or (0 < angle1 < 90 and 0 < angle2 < 90)
         ):
-            if y1 <= y <= y2:
-                return True
-            else:
-                return False
+            return y1 <= y <= y2
         else:
-            if y2 <= y <= y1:
-                return True
-            else:
-                return False
+            return y2 <= y <= y1
