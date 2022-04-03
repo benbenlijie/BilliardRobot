@@ -13,9 +13,39 @@ MonoBehaviour:
   m_Name: IdLabelConfig
   m_EditorClassIdentifier: 
   m_LabelEntries:
-  - label: cue_ball
+  - label: ball_position
     id: 1
   - label: Ball1
     id: 2
+  - label: Ball2
+    id: 3
+  - label: Ball3
+    id: 4
+  - label: Ball4
+    id: 5
+  - label: Ball5
+    id: 6
+  - label: Ball6
+    id: 7
+  - label: Ball7
+    id: 8
+  - label: Ball8
+    id: 9
+  - label: Ball9
+    id: 10
+  - label: Ball10
+    id: 11
+  - label: Ball11
+    id: 12
+  - label: Ball12
+    id: 13
+  - label: Ball13
+    id: 14
+  - label: Ball14
+    id: 15
+  - label: Ball15
+    id: 16
+  - label: WhiteBall
+    id: 17
   autoAssignIds: 1
   startingLabelId: 1

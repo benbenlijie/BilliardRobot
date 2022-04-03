@@ -6,14 +6,18 @@ using UnityEngine.Perception.Randomization.Randomizers;
 [AddComponentMenu("Perception/RandomizerTags/UniformPoseRandomizerTag")]
 public class UniformPoseRandomizerTag : RandomizerTag
 {
-    [HideInInspector]
     public Vector3 rootPosePosition;
     public Vector3 rootPoseRotation;
 
+    public bool useOriginPos = false;
+
     private void Start()
     {
-        rootPosePosition = transform.position;
-        rootPoseRotation = transform.eulerAngles;
+        if (useOriginPos)
+        {
+            rootPosePosition = transform.position;
+            rootPoseRotation = transform.eulerAngles;
+        }
     }
 
 }

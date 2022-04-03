@@ -16,7 +16,8 @@ public class UniformPoseRandomizer : Randomizer
      *  to small inaccuracies in placing the real camera.
      */
 
-    public float positionRange = 0.005f;
+    public float positionDistance = 0.5f;
+    public Vector3 positionRanges = Vector3.zero;
     public float rotationRangeDegrees = 1.0f;
 
     public FloatParameter random; //(-1, 1)
@@ -24,16 +25,44 @@ public class UniformPoseRandomizer : Randomizer
     protected override void OnIterationStart()
     {
         IEnumerable<UniformPoseRandomizerTag> tags = tagManager.Query<UniformPoseRandomizerTag>();
+        List<Vector3> positions_before = new List<Vector3>();
         foreach (UniformPoseRandomizerTag tag in tags)
         {
-            Vector3 adjustedPosition = AdjustedVector(tag.rootPosePosition, positionRange);
+            bool isOk = false;
+            while (!isOk)
+            {
+                Vector3 adjustedPosition = AdjustedVector(tag.rootPosePosition, positionRanges);
+                isOk = true;
+                foreach (var pos_before in positions_before)
+                {
+                    if (Vector3.SqrMagnitude(adjustedPosition - pos_before) < positionDistance)
+                    {
+                        isOk = false;
+                        break;
+                    }
+                }
+                if (isOk)
+                {
+                    positions_before.Add(adjustedPosition);
+                    tag.gameObject.transform.position = adjustedPosition;
+                }
+            }
+            
             Vector3 adjustedRotation = AdjustedVector(tag.rootPoseRotation, rotationRangeDegrees);
-            tag.gameObject.transform.position = adjustedPosition;
             tag.gameObject.transform.eulerAngles = adjustedRotation;
         }
     }
 
     // HELPERS
+
+    private Vector3 AdjustedVector(Vector3 rootVector, Vector3 ranges)
+    {
+        float x = AdjustedValue(rootVector.x, ranges.x);
+        float y = AdjustedValue(rootVector.y, ranges.y);
+        float z = AdjustedValue(rootVector.z, ranges.z);
+        Vector3 adjustedVector = new Vector3(x, y, z);
+        return adjustedVector;
+    }
 
     private Vector3 AdjustedVector(Vector3 rootVector, float range)
     {
