@@ -1,4 +1,4 @@
-from math import radians
+from math import cos, pi, radians, sin, sqrt
 
 import numpy as np
 
@@ -51,23 +51,23 @@ def cue_strike(cue_velocity, phi, theta=0, a=0, b=0):
     phi = radians(phi)
     theta = radians(theta)
 
-    c = np.sqrt(ball_radius ** 2 - a ** 2 - b ** 2)
+    c = sqrt(ball_radius ** 2 - a ** 2 - b ** 2)
 
     # Calculate impact force.
     numerator = 2 * cue_mass * cue_velocity
-    temp = a**2 + (b*np.cos(theta))**2 + (c*np.cos(theta))**2 - 2*b*c*np.cos(theta)*np.sin(theta)
+    temp = a**2 + (b*cos(theta))**2 + (c*cos(theta))**2 - 2*b*c*cos(theta)*sin(theta)
     denominator = 1 + ball_mass / cue_mass + 5 / 2 / ball_radius ** 2 * temp
     force = numerator/denominator
 
-    v_ball = -force / ball_mass * np.array([0, np.cos(theta), 0])
+    v_ball = -force / ball_mass * np.array([0, cos(theta), 0])
     w_ball = force/ball_moment_inertia * np.array([
-        -c * np.sin(theta) + b * np.cos(theta),
-        a * np.sin(theta),
-        -a * np.cos(theta)
+        -c * sin(theta) + b * cos(theta),
+        a * sin(theta),
+        -a * cos(theta)
     ])
 
     # Rotate to table reference.
-    rot_angle = phi + np.pi/2
+    rot_angle = phi + pi/2
     v_ball = coordinate_rotation(v_ball, rot_angle)
     w_ball = coordinate_rotation(w_ball, rot_angle)
 
@@ -82,12 +82,12 @@ def ball_ball_collision(ball1_rvw, ball2_rvw):
     v_mag = np.linalg.norm(v_rel)
 
     n = unit_vector(r2 - r1)
-    t = coordinate_rotation(n, np.pi/2)
+    t = coordinate_rotation(n, pi/2)
 
     beta = angle(v_rel, n)
 
-    ball1_rvw[1] = t * v_mag * np.sin(beta) + v2
-    ball2_rvw[1] = n * v_mag * np.cos(beta) + v2
+    ball1_rvw[1] = t * v_mag * sin(beta) + v2
+    ball2_rvw[1] = n * v_mag * cos(beta) + v2
 
     return ball1_rvw, ball2_rvw
 
@@ -104,19 +104,19 @@ def ball_cushion_collision(rvw, normal):
     rvw_R = coordinate_rotation(rvw.T, -psi).T
 
     # The incidence angle--called theta_0 in paper.
-    phi = angle(rvw_R[1]) % (2*np.pi)
+    phi = angle(rvw_R[1]) % (2*pi)
 
     # Get mu and e
     e = e_c
     mu = f_c
 
     # Depends on height of cushion relative to ball
-    theta_a = np.arcsin(cushion_height / ball_radius - 1)
+    theta_a = sin(cushion_height / ball_radius - 1)
 
     # Eqs 14
-    sx = rvw_R[1, 0] * np.sin(theta_a) - rvw_R[1, 2] * np.cos(theta_a) + ball_radius * rvw_R[2, 1]
-    sy = -rvw_R[1, 1] - ball_radius * rvw_R[2, 2] * np.cos(theta_a) + ball_radius * rvw_R[2, 0] * np.sin(theta_a)
-    c = rvw_R[1, 0]*np.cos(theta_a)  # 2D assumption
+    sx = rvw_R[1, 0] * sin(theta_a) - rvw_R[1, 2] * cos(theta_a) + ball_radius * rvw_R[2, 1]
+    sy = -rvw_R[1, 1] - ball_radius * rvw_R[2, 2] * cos(theta_a) + ball_radius * rvw_R[2, 0] * sin(theta_a)
+    c = rvw_R[1, 0]*cos(theta_a)  # 2D assumption
 
     # Eqs 16
     I = 2 / 5 * ball_mass * ball_radius ** 2
@@ -125,18 +125,18 @@ def ball_cushion_collision(rvw, normal):
 
     # Eqs 17 & 20
     PzE = (1 + e)*c/B
-    PzS = np.sqrt(sx**2 + sy**2)/A
+    PzS = sqrt(sx**2 + sy**2)/A
 
     if PzS <= PzE:
         # Sliding and sticking case
-        PX = -sx/A*np.sin(theta_a) - (1+e)*c/B*np.cos(theta_a)
+        PX = -sx/A*sin(theta_a) - (1+e)*c/B*cos(theta_a)
         PY = sy/A
-        PZ = sx/A*np.cos(theta_a) - (1+e)*c/B*np.sin(theta_a)
+        PZ = sx/A*cos(theta_a) - (1+e)*c/B*sin(theta_a)
     else:
         # Forward sliding case
-        PX = -mu*(1+e)*c/B*np.cos(phi)*np.sin(theta_a) - (1+e)*c/B*np.cos(theta_a)
-        PY = mu*(1+e)*c/B*np.sin(phi)
-        PZ = mu*(1+e)*c/B*np.cos(phi)*np.cos(theta_a) - (1+e)*c/B*np.sin(theta_a)
+        PX = -mu*(1+e)*c/B*cos(phi)*sin(theta_a) - (1+e)*c/B*cos(theta_a)
+        PY = mu*(1+e)*c/B*sin(phi)
+        PZ = mu*(1+e)*c/B*cos(phi)*cos(theta_a) - (1+e)*c/B*sin(theta_a)
 
     # Update velocity.
     rvw_R[1, 0] += PX / ball_mass
@@ -144,9 +144,9 @@ def ball_cushion_collision(rvw, normal):
     # rvw_R[1,2] += PZ/m
 
     # Update angular velocity
-    rvw_R[2, 0] += -ball_radius / I * PY * np.sin(theta_a)
-    rvw_R[2, 1] += ball_radius / I * (PX * np.sin(theta_a) - PZ * np.cos(theta_a))
-    rvw_R[2, 2] += ball_radius / I * PY * np.cos(theta_a)
+    rvw_R[2, 0] += -ball_radius / I * PY * sin(theta_a)
+    rvw_R[2, 1] += ball_radius / I * (PX * sin(theta_a) - PZ * cos(theta_a))
+    rvw_R[2, 2] += ball_radius / I * PY * cos(theta_a)
 
     # Change back to table reference frame
     rvw = coordinate_rotation(rvw_R.T, psi).T
@@ -180,10 +180,10 @@ def get_ball_ball_collision_coefficients(state, rvw):
              if state == State.rolling
              else coordinate_rotation(unit_vector(get_rel_velocity(rvw)), -phi))
 
-        ax = -1/2*mu*g*(u[0]*np.cos(phi) - u[1]*np.sin(phi))
-        ay = -1/2*mu*g*(u[0]*np.sin(phi) + u[1]*np.cos(phi))
-        bx = v*np.cos(phi)
-        by = v*np.sin(phi)
+        ax = -1/2*mu*g*(u[0]*cos(phi) - u[1]*sin(phi))
+        ay = -1/2*mu*g*(u[0]*sin(phi) + u[1]*cos(phi))
+        bx = v*cos(phi)
+        by = v*sin(phi)
 
     return ax, ay, bx, by
 
@@ -225,15 +225,15 @@ def get_ball_cushion_collision_time(rvw, s, lx, ly, l0):
     u = (np.array([1, 0, 0] if s == State.rolling
          else coordinate_rotation(unit_vector(get_rel_velocity(rvw)), -phi)))
 
-    ax = -1/2*mu*g*(u[0]*np.cos(phi) - u[1]*np.sin(phi))
-    ay = -1/2*mu*g*(u[0]*np.sin(phi) + u[1]*np.cos(phi))
-    bx, by = v*np.cos(phi), v*np.sin(phi)
+    ax = -1/2*mu*g*(u[0]*cos(phi) - u[1]*sin(phi))
+    ay = -1/2*mu*g*(u[0]*sin(phi) + u[1]*cos(phi))
+    bx, by = v*cos(phi), v*sin(phi)
     cx, cy = rvw[0, 0], rvw[0, 1]
 
     a = lx*ax + ly*ay
     b = lx*bx + ly*by
-    c1 = l0 + lx*cx + ly*cy + ball_radius*np.sqrt(lx**2 + ly**2)
-    c2 = l0 + lx*cx + ly*cy - ball_radius*np.sqrt(lx**2 + ly**2)
+    c1 = l0 + lx*cx + ly*cy + ball_radius*sqrt(lx**2 + ly**2)
+    c2 = l0 + lx*cx + ly*cy - ball_radius*sqrt(lx**2 + ly**2)
 
     roots = np.append(np.roots([a, b, c1]), np.roots([a, b, c2]))
 
@@ -317,7 +317,7 @@ def evolve_roll_state(rvw, t):
 
     r_t = r_0 + v_0 * t - 1/2*u_r*g*t**2 * v_0_unit
     v_t = v_0 - u_r*g*t * v_0_unit
-    w_t = coordinate_rotation(v_t / ball_radius, np.pi / 2)
+    w_t = coordinate_rotation(v_t / ball_radius, pi / 2)
 
     # Independently evolve the z spin.
     w_t[2] = evolve_spin_state(rvw, t)[2, 2]

@@ -1,4 +1,4 @@
-from math import acos, atan, degrees, radians, sqrt, tan
+from math import acos, atan, atan2, cos, degrees, pi, radians, sin, sqrt, tan
 
 import numpy as np
 
@@ -7,16 +7,16 @@ from PlanningCore.core.constants import ball_radius, table_height, table_width
 
 def angle(v2, v1=(1, 0)):
     """Calculates counter-clockwise angle of the projections of v1 and v2 onto the x-y plane."""
-    ang = np.arctan2(v2[1], v2[0]) - np.arctan2(v1[1], v1[0])
+    ang = atan2(v2[1], v2[0]) - atan2(v1[1], v1[0])
 
-    return 2*np.pi + ang if ang < 0 else ang
+    return 2*pi + ang if ang < 0 else ang
 
 
 def coordinate_rotation(v, phi):
     rotation = np.array(
         [
             [np.cos(phi), -np.sin(phi), 0],
-            [np.sin(phi), np.cos(phi), 0],
+            [sin(phi), cos(phi), 0],
             [0, 0, 1],
         ]
     )
@@ -58,7 +58,7 @@ def get_common_tangent_angles(cue_ball, target_ball):
     else:
         beta = atan((r2[0] - r1[0]) / (r2[1] - r1[1]))
     angle1 = degrees(alpha - beta)
-    angle2 = degrees(np.pi - alpha - beta)
+    angle2 = degrees(pi - alpha - beta)
     if r2[1] < r1[1]:
         angle1 += 180
         angle2 += 180
