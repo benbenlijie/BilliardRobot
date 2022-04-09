@@ -72,7 +72,7 @@ def search_optimal_direct_strike(
             if simulate_func(table, **simulate_args):
                 if table.balls[i].state == State.pocketed:
                     table.reset_balls()
-                    results.append((i, angle, coordinate_transformation_inverse(ball.pos)))
+                    results.append((i, angle, coordinate_transformation_inverse(table.balls[i].pos)))
                     if return_once_find:
                         return results
             table.reset_balls()
