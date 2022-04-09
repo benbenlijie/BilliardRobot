@@ -5,6 +5,7 @@ from PlanningCore.billiard import init_table
 def get_strike_angles(
     balls_pos,
     cue_ball_pos=(0, 0),
+    robot_pos=(0, -2),
     v_cue=1,
     dt=0.2,
     dang=0.5,
@@ -28,9 +29,10 @@ def get_strike_angles(
         y
 
     Args:
-        cue_ball_pos (tuple[float, float]): Cue ball pos, (x, y).
         balls_pos (list[tuple[float, float]]): List of other balls' pos, (x, y).
         v_cue (float): Cue's velocity.
+        cue_ball_pos (tuple[float, float]): Cue ball pos, (x, y).
+        robot_pos: Robot position.
         dt (float): Discrete time, in sec, need to specify when `event_based` is False.
         dang (float): Discrete angle, in degree.
         return_once_find (bool): Stop search when find one strike angle that can make ball pocket.
@@ -43,7 +45,7 @@ def get_strike_angles(
             float: Strike angle, see Notes.
             tuple[float, float]: Pos of ball that need to be hit.
     """
-    table = init_table(cue_ball_pos=cue_ball_pos, balls_pos=balls_pos)
+    table = init_table(cue_ball_pos=cue_ball_pos, balls_pos=balls_pos, robot_pos=robot_pos)
     if direct_strike:
         angles = search_optimal_direct_strike(
             table=table,
