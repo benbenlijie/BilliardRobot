@@ -648,7 +648,7 @@ public class TrajectoryPlanner : MonoBehaviour
             var estimatedPosition = response.estimated_pose.position.From<RUF>();
             var estimatedRotation = response.estimated_pose.orientation.From<RUF>();
 
-            // PublishBilliardJoints(estimatedPosition, estimatedRotation.x);
+            PublishBilliardJoints(estimatedPosition, estimatedRotation.x);
 
             // EstimatedPos.text = estimatedPosition.ToString();
             // EstimatedRot.text = estimatedRotation.eulerAngles.ToString();
