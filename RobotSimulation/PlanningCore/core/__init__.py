@@ -1,3 +1,10 @@
+# # Uncomment to run locally.
+# import os
+# import sys
+#
+# ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# sys.path.insert(0, ROOT)
+
 from PlanningCore.core import constants
 from PlanningCore.core.constants import State
 from PlanningCore.core.planning import search_optimal_direct_strike, search_optimal_strike
