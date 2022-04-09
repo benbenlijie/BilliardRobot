@@ -8,7 +8,12 @@
 from PlanningCore.core import constants
 from PlanningCore.core.constants import State
 from PlanningCore.core.planning import search_optimal_direct_strike, search_optimal_strike
-from PlanningCore.core.utils import coordinate_transformation, get_common_tangent_angles, get_line_formula
+from PlanningCore.core.utils import (
+    coordinate_transformation,
+    get_common_tangent_angles,
+    get_line_formula,
+    get_vector_angles,
+)
 
 
 if __name__ == '__main__':

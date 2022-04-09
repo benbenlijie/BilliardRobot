@@ -41,11 +41,11 @@ def get_rel_velocity(rvw):
     return v + ball_radius * np.cross(np.array([0, 0, 1]), w)
 
 
-def is_pocket(ball_pos, pocket):
+def is_pocket(ball_pos, pocket, threshold=0.025):
     return sqrt(
         (ball_pos[0] - pocket.pos[0]) ** 2
         + (ball_pos[1] - pocket.pos[1]) ** 2
-    ) < pocket.radius
+    ) < pocket.radius - threshold
 
 
 def get_common_tangent_angles(cue_ball, target_ball):
@@ -88,3 +88,13 @@ def get_line_formula(angle, point):
     k = tan(radians(angle))
     b = point[1] - k * point[0]
     return lambda x: k*x + b
+
+
+def get_vector_angles(p1, p2, p3):
+    """Calculate angle (in degrees) of V_p1_p2 and V_p2_p3."""
+    v_p1_p2 = np.asarray(p2) - np.asarray(p1)
+    v_p2_p3 = np.asarray(p3) - np.asarray(p2)
+    return degrees(acos(np.dot(
+        a=v_p1_p2,
+        b=v_p2_p3,
+    ) / (np.linalg.norm(v_p1_p2) * np.linalg.norm(v_p2_p3))))

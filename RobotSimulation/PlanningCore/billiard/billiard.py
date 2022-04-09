@@ -1,6 +1,5 @@
 from copy import deepcopy
 from itertools import product
-from math import acos, pi
 
 import numpy as np
 
@@ -10,6 +9,7 @@ from PlanningCore.core import (
     constants as c,
     get_common_tangent_angles,
     get_line_formula,
+    get_vector_angles,
     State,
 )
 
@@ -160,13 +160,8 @@ class Table(object):
             if self.is_between(angle1, angle2, pocket.pos):
                 value += 1
         # Robot cannot strike the cue ball.
-        v_robot_cue_ball = np.asarray(self.balls[0].pos) - np.asarray(self.robot.pos)
-        v_cue_ball_target_ball = np.asarray(ball.pos) - np.asarray(self.robot.pos)
-        angle = acos(np.dot(
-            a=v_robot_cue_ball,
-            b=v_cue_ball_target_ball,
-        ) / (np.linalg.norm(v_robot_cue_ball)*np.linalg.norm(v_cue_ball_target_ball)))
-        if angle > pi:
+        angle = get_vector_angles(self.robot.pos, self.balls[0].pos, ball.pos)
+        if angle > 90:
             value -= 10
         return value
 

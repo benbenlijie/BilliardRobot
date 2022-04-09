@@ -2,7 +2,12 @@ from math import acos, degrees, sqrt
 
 import numpy as np
 
-from PlanningCore.core.utils import coordinate_transformation_inverse, get_angle_range, get_common_tangent_angles
+from PlanningCore.core.utils import (
+    coordinate_transformation_inverse,
+    get_angle_range,
+    get_common_tangent_angles,
+    get_vector_angles,
+)
 from PlanningCore.core.simulation import shot, simulate, simulate_event_based
 from PlanningCore.core.constants import State
 
@@ -112,11 +117,25 @@ def obstacle(index, table, pocket, target_ball):
     return False
 
 
+def sort_pockets(pockets, ball_pos):
+    ball_pos = np.asarray(ball_pos)
+    dist = [
+        ((np.asarray(pocket.pos) - ball_pos) ** 2).sum()
+        for pocket in pockets
+    ]
+    sorted_pockets = sorted(zip(pockets, dist), key=lambda x: x[1])
+    return [pocket for pocket, _ in sorted_pockets]
+
+
 def find_pocket_angles(index, table):
     target_ball = table.balls[index]
     angles = []
-    for pocket in table.pockets:
-        if not obstacle(index, table, pocket, target_ball):
+    sorted_pockets = sort_pockets(table.pockets, target_ball.pos)
+    for pocket in sorted_pockets:
+        if (
+            not obstacle(index, table, pocket, target_ball)
+            and get_vector_angles(table.robot.pos, target_ball.pos, pocket.pos) < 75
+        ):
             r1 = np.asarray(target_ball.pos)
             r2 = np.asarray(pocket.pos)
             len_r1_r2 = sqrt(((r1 - r2) ** 2).sum())
