@@ -72,6 +72,8 @@ def _run_model(image_path, req):
     debug = False
     estimator = PosEstimation(image_path)
     cue_ball_center, balls_center = estimator.getAllBalls(debug)
+    if cue_ball_center is None or len(cue_ball_center) == 0:
+        cue_ball_center = [[0, 0]]
     # balls_center = estimator.getBallsPosition(w, h, debug, cue_x = cue_ball_center[0], cue_y = cue_ball_center[1])
     print('cue ball center: =========>')
     print(cue_ball_center[0])
