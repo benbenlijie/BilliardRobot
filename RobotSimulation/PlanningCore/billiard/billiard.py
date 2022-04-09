@@ -1,8 +1,10 @@
 from copy import deepcopy
 from itertools import product
+from math import acos, pi
 
 import numpy as np
 
+from PlanningCore.robot import Robot
 from PlanningCore.core import (
     coordinate_transformation,
     constants as c,
@@ -12,7 +14,7 @@ from PlanningCore.core import (
 )
 
 
-def init_table(cue_ball_pos, balls_pos):
+def init_table(cue_ball_pos, balls_pos, robot_pos=(0, -2)):
     cue_ball = Ball(
         no=0,
         color='white',
@@ -28,7 +30,8 @@ def init_table(cue_ball_pos, balls_pos):
     balls.insert(0, cue_ball)
     pockets = [Pocket(no=i, pos=(x, y), radius=c.pocket_radius)
                for i, (x, y) in enumerate(product((0, c.table_width), (0, c.table_height / 2, c.table_height)))]
-    table = Table(width=c.table_width, height=c.table_height, balls=balls, pockets=pockets)
+    robot = Robot(pos=coordinate_transformation(robot_pos))
+    table = Table(width=c.table_width, height=c.table_height, balls=balls, pockets=pockets, robot=robot)
     return table
 
 
@@ -83,11 +86,12 @@ class Pocket(object):
 
 
 class Table(object):
-    def __init__(self, width, height, balls, pockets):
+    def __init__(self, width, height, balls, pockets, robot):
         self.width = width
         self.height = height
         self.balls = balls
         self.pockets = pockets
+        self.robot = robot
         self.sort_balls()
         self.init_balls = deepcopy(self.balls)
         self.left = 0
@@ -155,6 +159,15 @@ class Table(object):
         for pocket in self.pockets:
             if self.is_between(angle1, angle2, pocket.pos):
                 value += 1
+        # Robot cannot strike the cue ball.
+        v_robot_cue_ball = np.asarray(self.balls[0].pos) - np.asarray(self.robot.pos)
+        v_cue_ball_target_ball = np.asarray(ball.pos) - np.asarray(self.robot.pos)
+        angle = acos(np.dot(
+            a=v_robot_cue_ball,
+            b=v_cue_ball_target_ball,
+        ) / (np.linalg.norm(v_robot_cue_ball)*np.linalg.norm(v_cue_ball_target_ball)))
+        if angle > pi:
+            value -= 10
         return value
 
     def is_between(self, angle1, angle2, point):

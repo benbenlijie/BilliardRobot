@@ -3,8 +3,8 @@ from PlanningCore.billiard import init_table
 
 
 def get_strike_angles(
-    cue_ball_pos,
     balls_pos,
+    cue_ball_pos=(0, 0),
     v_cue=1,
     dt=0.2,
     dang=0.5,

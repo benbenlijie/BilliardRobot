@@ -34,6 +34,15 @@ def animate(table, flip=False):
     def draw_table():
         screen.fill(cloth_color)
 
+    def draw_robot(pos):
+        x = scale * (pos[0] if flip else pos[1])
+        y = scale * (pos[1] if flip else pos[0])
+        pygame.draw.rect(
+            surface=screen,
+            color=(0, 0, 0),
+            rect=(y - radius, x - radius, radius * 2, radius * 2),
+        )
+
     def draw_balls(balls):
         for ball in balls:
             rvw = ball['rvw']
@@ -63,5 +72,6 @@ def animate(table, flip=False):
             draw_table()
             draw_balls(log['balls'])
             draw_pockets(table.pockets)
+            draw_robot(table.robot.pos)
             pygame.display.update()
             clock.tick(60)
