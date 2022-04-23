@@ -36,7 +36,7 @@ The execution of the objective is shown  in the demo video, in which we have inc
 &#8195 &#8195 Big-angle indirect hit: a more intelligent actuation based on decision and planning
 
 #### Video
-[![Watch the video](https://github.com/benbenlijie/BilliardRobot/blob/main/images/Scenario_3.png)](https://youtu.be/RIpQyh7deWE)
+[![Watch the video] <img src="https://github.com/benbenlijie/BilliardRobot/blob/main/images/cover.png" width=600 />](https://youtu.be/RIpQyh7deWE)
 ---
 ### <a name="link-part-3">[Part 3: Architecture]</a>
 
