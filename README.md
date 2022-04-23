@@ -29,11 +29,13 @@ In the game, the cue ball is hit by the end of the club, causing it to bounce of
 The execution of the objective is shown  in the demo video, in which we have included three scenarios: **Direct hit**, **indirect hit**, and **big-angle indirect hit**.
 
 <img src="https://github.com/benbenlijie/BilliardRobot/blob/main/images/Scenario_1.png" width=400 />
-&#8195 &#8195 Direct hit: to test the accuracy and precision of a hit and the subsequent trajectory
+**Direct hit:** to test the accuracy and precision of a hit and the subsequent trajectory
+
 <img src="https://github.com/benbenlijie/BilliardRobot/blob/main/images/Scenario_2.png" width=400 />
-&#8195 &#8195 Indirect hit: to test the accuracy and precision of of the target ball after the collision simulated, obeying the game rules
+**Indirect hit:** to test the accuracy and precision of of the target ball after the collision simulated, obeying the game rules
+
 <img src="https://github.com/benbenlijie/BilliardRobot/blob/main/images/Scenario_3.png" width=400 />
-&#8195 &#8195 Big-angle indirect hit: a more intelligent actuation based on decision and planning
+**Big-angle indirect hit:** a more intelligent actuation based on decision and planning
 
 #### Video
 [![Watch the video] <img src="https://github.com/benbenlijie/BilliardRobot/blob/main/images/cover.png" width=600 />](https://youtu.be/RIpQyh7deWE)
