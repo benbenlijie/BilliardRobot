@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-This project is xxx.
+This is a project using a UR3 robotic arm for billiards in Unity.
 
 > Note: This project has been developed with Python 3 and ROS Noetic.
 
