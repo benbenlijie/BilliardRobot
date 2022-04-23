@@ -11,7 +11,8 @@ import math
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # from get_balls_pos import PosEstimation
-from get_balls_pos_v2 import PosEstimation
+# from get_balls_pos_v2 import PosEstimation
+from get_balls_pos_v3 import PosEstimation
 from PlanningCore import get_strike_angles
 from ur3_moveit.srv import PoseEstimationService, PoseEstimationServiceResponse
 from PIL import Image, ImageOps
@@ -70,8 +71,12 @@ def _run_model(image_path, req):
 
 
     debug = False
+    p1 = 105
+    p2 = 16
+    white_crit = 1.8
     estimator = PosEstimation(image_path)
-    cue_ball_center, balls_center = estimator.getAllBalls(debug)
+    cue_ball_center, balls_center = estimator.getAllBalls(debug, p1, p2, white_crit)
+    # cue_ball_center, balls_center = estimator.getAllBalls(debug)
     if cue_ball_center is None or len(cue_ball_center) == 0:
         cue_ball_center = [[0, 0]]
     # balls_center = estimator.getBallsPosition(w, h, debug, cue_x = cue_ball_center[0], cue_y = cue_ball_center[1])
