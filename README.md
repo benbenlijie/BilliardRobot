@@ -28,14 +28,15 @@ In the game, the cue ball is hit by the end of the club, causing it to bounce of
 #### Examples of the demo of the three cases 
 The execution of the objective is shown  in the demo video, in which we have included three scenarios: **Direct hit**, **indirect hit**, and **big-angle indirect hit**.
 
-<img src="xxx" width=400 />
+<img src="https://github.com/benbenlijie/BilliardRobot/blob/main/images/Scenario_1.png" width=400 />
 &#8195 &#8195 Direct hit: to test the accuracy and precision of a hit and the subsequent trajectory
-<img src="xxx" width=400 />
+<img src="https://github.com/benbenlijie/BilliardRobot/blob/main/images/Scenario_2.png" width=400 />
 &#8195 &#8195 Indirect hit: to test the accuracy and precision of of the target ball after the collision simulated, obeying the game rules
-<img src="xxx" width=400 />
+<img src="https://github.com/benbenlijie/BilliardRobot/blob/main/images/Scenario_3.png" width=400 />
 &#8195 &#8195 Big-angle indirect hit: a more intelligent actuation based on decision and planning
-#### Video
 
+#### Video
+[![Watch the video](https://github.com/benbenlijie/BilliardRobot/blob/main/images/Scenario_3.png)](https://youtu.be/RIpQyh7deWE)
 ---
 ### <a name="link-part-3">[Part 3: Architecture]</a>
 
@@ -43,20 +44,12 @@ There are 4 main modules in this system architecture, namely perception, reflect
 knowledge repository, and decision-making module. Below figure illustrates the general 
 architecture.
 
-![](./images/system_architecture.png)
+<img src="https://github.com/benbenlijie/BilliardRobot/blob/main/images/system_architecture.png" width=600 />
 
-The right part is the Unity Scene, which represents the environment.
+The system is based on ROS, in which there are the robot simulation module based on *Unity3D* and  the computing module of [Perception](#link-改) and [Decision](#link-改). 
 
-The perception module extracts information from the bird-eye-view camera's image data set 
-above the billiard table. 
+The perception module extracts information from the bird-eye-view camera's image data set above the billiard table. The reflection module (*Unity3D*) then builds the environment model of the billiard table with the information. After that, the decision module will accomplish physical simulation, trajectory calculation, and arm planning with the help of the environment model and knowledge repository. Finally, the commands will be sent to the actuator in the robot arm.
 
-The Reflection module then builds the environment model of the billiard table with the 
-information. 
-
-After that, the decision module will accomplish physic simulation, trajectory calculation, 
-and arm planning with the help of the environment model and knowledge repository. 
-
-Finally, the commands will be sent to the actuator in the robot arm.
 
 ---
 ### <a name="link-part-4">[Part 4: Project Detail]</a>
