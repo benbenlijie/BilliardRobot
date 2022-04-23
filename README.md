@@ -48,7 +48,7 @@ architecture.
 
 <img src="https://github.com/benbenlijie/BilliardRobot/blob/main/images/system_architecture.png" width=600 />
 
-The system is based on ROS, in which there are the robot simulation module based on *Unity3D* and  the computing module of [Perception](#link-改) and [Decision](#link-改). 
+The system is based on ROS, in which there are the robot simulation module based on *Unity3D* and  the computing module of Perception and Decision. 
 
 The perception module extracts information from the bird-eye-view camera's image data set above the billiard table. The reflection module (*Unity3D*) then builds the environment model of the billiard table with the information. After that, the decision module will accomplish physical simulation, trajectory calculation, and arm planning with the help of the environment model and knowledge repository. Finally, the commands will be sent to the actuator in the robot arm.
 
