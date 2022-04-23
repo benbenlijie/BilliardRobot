@@ -6,7 +6,7 @@ This is a project using a UR3 robotic arm for billiards in Unity.
 
 > Note: This project has been developed with Python 3 and ROS Noetic.
 
-** Table of Contents**
+**Table of Contents**
 - [Part 1: Project Introduction](#link-part-1)
 - [Part 2: Demo](#link-part-2)
 - [Part 3: Architecture](#link-part-3)
@@ -18,14 +18,23 @@ This is a project using a UR3 robotic arm for billiards in Unity.
 
 ![Billiards world in Unity](./images/unity_simulation.png)
 
-Billiards has been one of the fun activities over the years. The game of billiards 
-is played on a rectangular table (pool table). A ball (the cue ball) is hit by the 
-end of the club, causing it to bounce off another ball and drop into a pocket of 
-the table. A good player needs to have precise geometry and strategy to win the 
-game.
+The course is *Intelligent Robotics Systems* of the academic year of 2021-2022, at Institute of System Science,  National University of Singapore. This project aims to build an intelligent robot based on improving the health and well-being of the society. We are here to develop a competitive automated robot to play the billiard game with human players.
+
+In the game, the cue ball is hit by the end of the club, causing it to bounce off another ball and drop into a pocket of the table. A good player needs to have precise geometry and strategy to win the game. This project presents our developed billiard robot. This 6-DoF robot is fixed on the pool table and can change the position and orientation of the club and finally give a hit to the cue ball based on the perception and decision.
+
 
 ---
 ### <a name="link-part-2">[Part 2: Demo]</a>
+#### Examples of the demo of the three cases 
+The execution of the objective is shown  in the demo video, in which we have included three scenarios: **Direct hit**, **indirect hit**, and **big-angle indirect hit**.
+
+<img src="xxx" width=400 />
+&#8195 &#8195 Direct hit: to test the accuracy and precision of a hit and the subsequent trajectory
+<img src="xxx" width=400 />
+&#8195 &#8195 Indirect hit: to test the accuracy and precision of of the target ball after the collision simulated, obeying the game rules
+<img src="xxx" width=400 />
+&#8195 &#8195 Big-angle indirect hit: a more intelligent actuation based on decision and planning
+#### Video
 
 ---
 ### <a name="link-part-3">[Part 3: Architecture]</a>
