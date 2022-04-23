@@ -38,7 +38,7 @@ Indirect hit:  to test the accuracy and precision of of the target ball after th
 Big-angle indirect hit:  a more intelligent actuation based on decision and planning
 
 #### Video
-<img src="https://github.com/benbenlijie/BilliardRobot/blob/main/images/cover.png" width=600 />(https://youtu.be/RIpQyh7deWE)
+[![Watch the video](http://img.youtube.com/vi/RIpQyh7deWE/0.jpg)](https://youtu.be/RIpQyh7deWE)
 ---
 ### <a name="link-part-3">[Part 3: Architecture]</a>
 
