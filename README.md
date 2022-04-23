@@ -16,7 +16,7 @@ This is a project using a UR3 robotic arm for billiards in Unity.
 ---
 ### <a name="link-part-1">[Part 1: Project Introduction]</a>
 
-![Billiards world in Unity](./images/unity-simulation.png)
+![Billiards world in Unity](./images/unity_simulation.png)
 
 Billiards has been one of the fun activities over the years. The game of billiards 
 is played on a rectangular table (pool table). A ball (the cue ball) is hit by the 
@@ -34,7 +34,7 @@ There are 4 main modules in this system architecture, namely perception, reflect
 knowledge repository, and decision-making module. Below figure illustrates the general 
 architecture.
 
-![](./images/system architecture.png)
+![](./images/system_architecture.png)
 
 The right part is the Unity Scene, which represents the environment.
 
