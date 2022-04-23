@@ -9,18 +9,45 @@ This is a project using a UR3 robotic arm for billiards in Unity.
 ** Table of Contents**
 - [Part 1: Project Introduction](#link-part-1)
 - [Part 2: Demo](#link-part-2)
-- [Part 3: Archetecture](#link-part-3)
+- [Part 3: Architecture](#link-part-3)
 - [Part 4: Project Detail](#link-part-4)
 - [Part 5: Team Introduction](#link-part-5)
 
 ---
 ### <a name="link-part-1">[Part 1: Project Introduction]</a>
 
+![Billiards world in Unity](./images/unity-simulation.png)
+
+Billiards has been one of the fun activities over the years. The game of billiards 
+is played on a rectangular table (pool table). A ball (the cue ball) is hit by the 
+end of the club, causing it to bounce off another ball and drop into a pocket of 
+the table. A good player needs to have precise geometry and strategy to win the 
+game.
+
 ---
 ### <a name="link-part-2">[Part 2: Demo]</a>
 
 ---
 ### <a name="link-part-3">[Part 3: Architecture]</a>
+
+There are 4 main modules in this system architecture, namely perception, reflection, 
+knowledge repository, and decision-making module. Below figure illustrates the general 
+architecture.
+
+![](./images/system architecture.png)
+
+The right part is the Unity Scene, which represents the environment.
+
+The perception module extracts information from the bird-eye-view camera's image data set 
+above the billiard table. 
+
+The Reflection module then builds the environment model of the billiard table with the 
+information. 
+
+After that, the decision module will accomplish physic simulation, trajectory calculation, 
+and arm planning with the help of the environment model and knowledge repository. 
+
+Finally, the commands will be sent to the actuator in the robot arm.
 
 ---
 ### <a name="link-part-4">[Part 4: Project Detail]</a>
@@ -76,12 +103,11 @@ of the physical simulation after the cue strike.
 
 ---
 ### <a name="link-part-5">[Part 5: Team Introduction]</a>
-This is a team of students from the ISS of the National University of Singapore. We learned the course of the robot system in the classroom, and built this billiard robot system by applying the knowledge we learned. If you have any questions, please feel free to contact us.
+This is a team of students from the ISS of the National University of Singapore. 
+We learned the course of the robot system in the classroom, and built this billiard 
+robot system by applying the knowledge we learned. If you have any questions, please 
+feel free to contact us.
 
 
 ## License
 [Apache License 2.0](LICENSE)
-
-
-
-
